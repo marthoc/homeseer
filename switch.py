@@ -1,8 +1,5 @@
 """
-Support for HomeSeer light-type devices.
-
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/light.homeseer/
+Support for HomeSeer switch-type devices.
 """
 import logging
 
@@ -16,7 +13,7 @@ DEPENDENCIES = ['homeseer']
 
 async def async_setup_platform(hass, config, async_add_entities,
                                discovery_info=None):
-    """Set up HomeSeer light-type devices."""
+    """Set up HomeSeer switch-type devices."""
     from pyhs3 import HASS_SWITCHES
 
     switch_devices = []
@@ -32,7 +29,7 @@ async def async_setup_platform(hass, config, async_add_entities,
 
 
 class HSSwitch(SwitchDevice):
-    """Representation of a HomeSeer lock device."""
+    """Representation of a HomeSeer switch-type device."""
     def __init__(self, device, connection):
         self._device = device
         self._connection = connection
@@ -63,7 +60,7 @@ class HSSwitch(SwitchDevice):
     @property
     def is_on(self):
         """Return true if device is locked."""
-        return self._device.value == self._device.on_value
+        return self._device.is_on
 
     async def async_turn_on(self, **kwargs):
         await self._device.on()

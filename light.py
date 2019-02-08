@@ -1,8 +1,5 @@
 """
 Support for HomeSeer light-type devices.
-
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/light.homeseer/
 """
 import logging
 
@@ -68,12 +65,16 @@ class HSLight(Light):
     @property
     def brightness(self):
         """Return the brightness of the light."""
-        return self._convert_to_hass_level(self._device.value)
+        bri = self._device.dim_percent * 255
+        if bri > 255:
+            return 255
+        else:
+            return bri
 
     @property
     def is_on(self):
         """Return true if device is on."""
-        return self._device.value > 0
+        return self._device.is_on
 
     async def async_turn_on(self, **kwargs):
         """Turn the light on."""
@@ -84,14 +85,6 @@ class HSLight(Light):
     async def async_turn_off(self, **kwargs):
         """Turn the light off."""
         await self._device.off()
-
-    def _convert_to_hass_level(self, value):
-        """Determine state of HS light device as a percentage, then return that percentage of 255."""
-        brightness = int((value / self._device.on_value) * 255)
-        if brightness > 255:
-            return 255
-        else:
-            return brightness
 
     async def async_added_to_hass(self):
         """Register value update callback."""

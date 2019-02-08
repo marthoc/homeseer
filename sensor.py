@@ -1,8 +1,5 @@
 """
-Support for HomeSeer light-type devices.
-
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/light.homeseer/
+Support for HomeSeer sensor-type devices.
 """
 import logging
 
@@ -17,7 +14,7 @@ DEPENDENCIES = ['homeseer']
 
 async def async_setup_platform(hass, config, async_add_entities,
                                discovery_info=None):
-    """Set up HomeSeer binary-sensor-type devices."""
+    """Set up HomeSeer sensor-type devices."""
     from pyhs3 import HASS_SENSORS, DEVICE_ZWAVE_BATTERY
 
     sensor_devices = []

@@ -16,7 +16,7 @@ from homeassistant.helpers import aiohttp_client, discovery
 
 _LOGGER = logging.getLogger(__name__)
 
-REQUIREMENTS = ['pyhs3==0.1']
+REQUIREMENTS = ['pyhs3==0.9']
 
 DOMAIN = 'homeseer'
 
@@ -41,7 +41,7 @@ CONFIG_SCHEMA = vol.Schema({
     })
 }, extra=vol.ALLOW_EXTRA)
 
-HOMESEER_COMPONENTS = ['binary_sensor', 'light', 'lock', 'scene', 'sensor', 'switch']
+HOMESEER_COMPONENTS = ['binary_sensor', 'cover', 'light', 'lock', 'scene', 'sensor', 'switch']
 
 
 async def async_setup(hass, config):

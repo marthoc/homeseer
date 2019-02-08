@@ -1,8 +1,5 @@
 """
-Support for HomeSeer binary-sensor--type devices.
-
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/binary_sensor.homeseer/
+Support for HomeSeer binary-type devices.
 """
 import logging
 
@@ -16,7 +13,7 @@ DEPENDENCIES = ['homeseer']
 
 async def async_setup_platform(hass, config, async_add_entities,
                                discovery_info=None):
-    """Set up HomeSeer binary-sensor-type devices."""
+    """Set up HomeSeer binary-type devices."""
     from pyhs3 import HASS_BINARY_SENSORS
 
     binary_sensor_devices = []
@@ -32,7 +29,7 @@ async def async_setup_platform(hass, config, async_add_entities,
 
 
 class HSBinarySensor(BinarySensorDevice):
-    """Representation of a HomeSeer binary-sensor-type device."""
+    """Representation of a HomeSeer binary-type device."""
     def __init__(self, device, connection):
         self._device = device
         self._connection = connection

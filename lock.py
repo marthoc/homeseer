@@ -1,8 +1,5 @@
 """
-Support for HomeSeer light-type devices.
-
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/light.homeseer/
+Support for HomeSeer lock-type devices.
 """
 import logging
 
@@ -16,14 +13,14 @@ DEPENDENCIES = ['homeseer']
 
 async def async_setup_platform(hass, config, async_add_entities,
                                discovery_info=None):
-    """Set up HomeSeer light-type devices."""
+    """Set up HomeSeer lock-type devices."""
     from pyhs3 import HASS_LOCKS
 
     lock_devices = []
     homeseer = hass.data[DOMAIN]
 
     for device in homeseer.devices:
-        if device.device_type_string == HASS_LOCKS:
+        if device.device_type_string in HASS_LOCKS:
             dev = HSLock(device, homeseer)
             lock_devices.append(dev)
             _LOGGER.info('Added HomeSeer lock device: {}'.format(dev.name))
@@ -63,7 +60,7 @@ class HSLock(LockDevice):
     @property
     def is_locked(self):
         """Return true if device is locked."""
-        return self._device.value == self._device.on_value
+        return self._device.is_locked
 
     async def async_lock(self, **kwargs):
         await self._device.lock()
