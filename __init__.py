@@ -23,12 +23,14 @@ DOMAIN = 'homeseer'
 CONF_HTTP_PORT = 'http_port'
 CONF_ASCII_PORT = 'ascii_port'
 CONF_LOCATION_NAMES = 'location_names'
+CONF_ALLOW_EVENTS = 'allow_events'
 
 DEFAULT_HTTP_PORT = 80
 DEFAULT_PASSWORD = 'default'
 DEFAULT_USERNAME = 'default'
 DEFAULT_ASCII_PORT = 11000
 DEFAULT_LOCATION_NAMES = False
+DEFAULT_ALLOW_EVENTS = True
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
@@ -37,7 +39,8 @@ CONFIG_SCHEMA = vol.Schema({
         vol.Optional(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
         vol.Optional(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
         vol.Optional(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
-        vol.Optional(CONF_LOCATION_NAMES, default=DEFAULT_LOCATION_NAMES): cv.boolean
+        vol.Optional(CONF_LOCATION_NAMES, default=DEFAULT_LOCATION_NAMES): cv.boolean,
+        vol.Optional(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): cv.boolean
     })
 }, extra=vol.ALLOW_EXTRA)
 
@@ -55,6 +58,7 @@ async def async_setup(hass, config):
     http_port = config[CONF_HTTP_PORT]
     ascii_port = config[CONF_ASCII_PORT]
     location_names = config[CONF_LOCATION_NAMES]
+    allow_events = config[CONF_ALLOW_EVENTS]
 
     homeseer = HSConnection(hass, host, username, password, http_port, ascii_port, location_names)
 
@@ -76,6 +80,9 @@ async def async_setup(hass, config):
     _LOGGER.info('Connected to HomeSeer ASCII server at {}:{}'.format(host, ascii_port))
 
     homeseer.add_remotes()
+
+    if not allow_events:
+        HOMESEER_COMPONENTS.remove('scene')
 
     for component in HOMESEER_COMPONENTS:
         hass.async_create_task(discovery.async_load_platform(
