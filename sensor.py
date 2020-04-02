@@ -54,7 +54,10 @@ class HSSensor(Entity):
     @property
     def name(self):
         """Return the name of the device."""
-        return self._device.name
+        if self._connection.location_names:
+            return '{} {} {}'.format(self._device.location2, self._device.location, self._device.name)
+        else:
+            return self._device.name
 
     @property
     def state(self):
