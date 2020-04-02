@@ -23,7 +23,7 @@ HomeSeer devices of the type "Z-Wave Central Scene" will not create an entity in
 - `id`: Device Ref of the Central Scene device in HomeSeer.
 - `event`: Numeric value of the Central Scene device in HomeSeer for a given event.
 
-## Installation
+## Install
 
 0. Enable the ASCII connection in HomeSeer (required to receive device updates in Home Assistant).
 1. Create the directory `custom_components` inside your Home Assistant config directory.
@@ -31,16 +31,23 @@ HomeSeer devices of the type "Z-Wave Central Scene" will not create an entity in
 3. Add the below config to your configuration.yaml and restart Home Assistant.
 4. Problems with certain devices (i.e. not supported yet) will be reported in the debug logs for the component/pyHS3.
 
+## Upgrade
+
+0. Stop Home Assistant
+1. `cd` into the `custom_components/homeseer` directory and do `git pull`.
+2. Start Home Assistant
+
 ## configuration.yaml example
 
 ```yaml
 homeseer:
   host:  192.168.1.10
-  port: 80
+  http_port: 80
   ascii_port: 11000
   username: default
   password: default
   location_names: False
+  allow_events: True
 ```
 |Parameter|Description|Required/Optional|
 |---------|-----------|-----------------|
@@ -50,6 +57,7 @@ homeseer:
 |username|Username of the user to connect to the HomeTroller|Optional, default "default"|
 |password|Password of the user to connect to the HomeTroller|Optional, default "default"|
 |location_names|Append location2 + location to device name (see below)|Optional, default False|
+|allow_events|Create Home Assistant scenes for HomeSeer events|Optional, default True|
 
 ### location_names
 
