@@ -11,6 +11,12 @@ Z-Wave devices of the following types should create entities in Home Assistant:
 - Z-Wave Switch Binary (as Home Assistant switch)
 - Z-Wave Switch Multilevel (as Home Assistant light)
 - Z-Wave Central Scene (as Home Assistant event - see below)
+- Z-Wave Temperature (as Home Assistant sensor)
+- Z-Wave Relative Humidity (as Home Assistant sensor)
+- Z-Wave Luminance (as Home Assistant sensor)
+- Z-Wave Fan State for HVAC (as Home Assistant sensor)
+- Z-Wave Operating State for HVAC (as Home Assistant sensor)
+
 
 HomeSeer Events will be created as Home Assistant scenes (triggering the scene in Home Assistant will run the HomeSeer event).
 
@@ -47,21 +53,23 @@ homeseer:
   username: default
   password: default
   location_names: False
+  location2_names: False
   allow_events: True
 ```
 |Parameter|Description|Required/Optional|
 |---------|-----------|-----------------|
 |host|IP address of the HomeSeer HS3 HomeTroller|Required|
-|port|HTTP port of the HomeTroller|Optional, default 80|
+|http_port|HTTP port of the HomeTroller|Optional, default 80|
 |ascii_port|ASCII port of the HomeTroller|Optional, default 11000|
 |username|Username of the user to connect to the HomeTroller|Optional, default "default"|
 |password|Password of the user to connect to the HomeTroller|Optional, default "default"|
-|location_names|Append location2 + location to device name (see below)|Optional, default False|
+|location_names|Prepend location to device name (see below)|Optional, default False|
+|location2_names|Prepend location2 to device name (see below)|Optional, default False|
 |allow_events|Create Home Assistant scenes for HomeSeer events|Optional, default True|
 
-### location_names
+### location_names and location2_names
 
-By default entities will be named only the name of the device in HomeSeer. If you want the location2 + location fields to be appended to the name, set location_names to True.
+By default entities will be named only the name of the device in HomeSeer. If you want the location2 and/or location fields to be prepended to the name, set location2_names and/or location_names to True.
 
 Example:
 - HomeSeer location2 "Main Floor"
@@ -69,6 +77,7 @@ Example:
 - HomeSeer device name "Lamp"
 
 Result:
-- location_names = False: Home Assistant entity will be called "Lamp"
-- location_names = True: Home Assistant entity will be called "Main Floor Living Room Lamp"
-
+- Both = False: Home Assistant entity will be called "Lamp"
+- location_names = True: Home Assistant entity will be called "Living Room Lamp"
+- location2_names = True: Home Assistant entity will be called "Main Floor Lamp"
+- Both = True: Home Assistant entity will be called "Main Floor Living Room Lamp"

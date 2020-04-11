@@ -44,15 +44,21 @@ class HSCover(CoverDevice):
     @property
     def device_state_attributes(self):
         attr = {
-            'Device Ref': self._device.ref
+            'Device Ref': self._device.ref,
+            'Location': self._device.location,
+            'Location2': self._device.location2
         }
         return attr
 
     @property
     def name(self):
         """Return the name of the device."""
-        if self._connection.location_names:
+        if self._connection.location2_names and self._connection.location_names:
             return '{} {} {}'.format(self._device.location2, self._device.location, self._device.name)
+        elif self._connection.location2_names:
+            return '{} {}'.format(self._device.location2, self._device.name)
+        elif self._connection.location_names:
+            return '{} {}'.format(self._device.location, self._device.name)
         else:
             return self._device.name
 

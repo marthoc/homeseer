@@ -16,13 +16,12 @@ from homeassistant.helpers import aiohttp_client, discovery
 
 _LOGGER = logging.getLogger(__name__)
 
-REQUIREMENTS = ['pyhs3==0.9']
-
 DOMAIN = 'homeseer'
 
 CONF_HTTP_PORT = 'http_port'
 CONF_ASCII_PORT = 'ascii_port'
 CONF_LOCATION_NAMES = 'location_names'
+CONF_LOCATION2_NAMES = 'location2_names'
 CONF_ALLOW_EVENTS = 'allow_events'
 
 DEFAULT_HTTP_PORT = 80
@@ -30,6 +29,7 @@ DEFAULT_PASSWORD = 'default'
 DEFAULT_USERNAME = 'default'
 DEFAULT_ASCII_PORT = 11000
 DEFAULT_LOCATION_NAMES = False
+DEFAULT_LOCATION2_NAMES = False
 DEFAULT_ALLOW_EVENTS = True
 
 CONFIG_SCHEMA = vol.Schema({
@@ -40,6 +40,7 @@ CONFIG_SCHEMA = vol.Schema({
         vol.Optional(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
         vol.Optional(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
         vol.Optional(CONF_LOCATION_NAMES, default=DEFAULT_LOCATION_NAMES): cv.boolean,
+        vol.Optional(CONF_LOCATION2_NAMES, default=DEFAULT_LOCATION2_NAMES): cv.boolean,
         vol.Optional(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): cv.boolean
     })
 }, extra=vol.ALLOW_EXTRA)
@@ -58,9 +59,11 @@ async def async_setup(hass, config):
     http_port = config[CONF_HTTP_PORT]
     ascii_port = config[CONF_ASCII_PORT]
     location_names = config[CONF_LOCATION_NAMES]
+    location2_names = config[CONF_LOCATION2_NAMES]
     allow_events = config[CONF_ALLOW_EVENTS]
 
-    homeseer = HSConnection(hass, host, username, password, http_port, ascii_port, location_names)
+    homeseer = HSConnection(hass, host, username, password, http_port, ascii_port,
+                            location_names, location2_names)
 
     await homeseer.api.initialize()
     if len(homeseer.devices) == 0 and len(homeseer.events) == 0:
@@ -97,13 +100,14 @@ async def async_setup(hass, config):
 
 class HSConnection:
     """Manages a connection between HomeSeer and Home Assistant."""
-    def __init__(self, hass, host, username, password, http_port, ascii_port, location_names):
+    def __init__(self, hass, host, username, password, http_port, ascii_port, location_names, location2_names):
         from pyhs3 import HomeTroller
         self._hass = hass
         self._session = aiohttp_client.async_get_clientsession(self._hass)
         self.api = HomeTroller(host, self._session, username=username, password=password,
                                http_port=http_port, ascii_port=ascii_port)
         self._location_names = location_names
+        self._location2_names = location2_names
         self.remotes = []
 
     @property
@@ -117,6 +121,10 @@ class HSConnection:
     @property
     def location_names(self):
         return self._location_names
+
+    @property
+    def location2_names(self):
+        return self._location2_names
 
     async def start(self):
         await self.api.start_listener()
