@@ -3,7 +3,8 @@ Support for HomeSeer sensor-type devices.
 """
 import logging
 
-from homeassistant.const import DEVICE_CLASS_BATTERY
+from homeassistant.const import (DEVICE_CLASS_BATTERY, DEVICE_CLASS_TEMPERATURE, DEVICE_CLASS_HUMIDITY,
+                                 DEVICE_CLASS_ILLUMINANCE)
 from homeassistant.helpers.entity import Entity
 from . import DOMAIN
 
@@ -15,15 +16,28 @@ DEPENDENCIES = ['homeseer']
 async def async_setup_platform(hass, config, async_add_entities,
                                discovery_info=None):
     """Set up HomeSeer sensor-type devices."""
-    from pyhs3 import HASS_SENSORS, DEVICE_ZWAVE_BATTERY
+    from pyhs3 import (HASS_SENSORS, DEVICE_ZWAVE_BATTERY, DEVICE_ZWAVE_TEMPERATURE,
+                       DEVICE_ZWAVE_RELATIVE_HUMIDITY, DEVICE_ZWAVE_LUMINANCE,
+                       DEVICE_ZWAVE_FAN_STATE, DEVICE_ZWAVE_OPERATING_STATE)
 
     sensor_devices = []
     homeseer = hass.data[DOMAIN]
+    units = hass.config.units.name
 
     for device in homeseer.devices:
         if device.device_type_string in HASS_SENSORS:
             if device.device_type_string == DEVICE_ZWAVE_BATTERY:
                 dev = HSBattery(device, homeseer)
+            elif device.device_type_string == DEVICE_ZWAVE_TEMPERATURE:
+                dev = HSTemperature(device, homeseer, units)
+            elif device.device_type_string == DEVICE_ZWAVE_RELATIVE_HUMIDITY:
+                dev = HSHumidity(device, homeseer)
+            elif device.device_type_string == DEVICE_ZWAVE_LUMINANCE:
+                dev = HSLuminance(device, homeseer)
+            elif device.device_type_string == DEVICE_ZWAVE_FAN_STATE:
+                dev = HSFanState(device, homeseer)
+            elif device.device_type_string == DEVICE_ZWAVE_OPERATING_STATE:
+                dev = HSOperatingState(device, homeseer)
             else:
                 dev = HSSensor(device, homeseer)
             sensor_devices.append(dev)
@@ -34,9 +48,10 @@ async def async_setup_platform(hass, config, async_add_entities,
 
 class HSSensor(Entity):
     """Representation of a HomeSeer sensor-type device."""
-    def __init__(self, device, connection):
+    def __init__(self, device, connection, units=None):
         self._device = device
         self._connection = connection
+        self._units = units
 
     @property
     def available(self):
@@ -81,7 +96,7 @@ class HSSensor(Entity):
 
 
 class HSBattery(HSSensor):
-
+    """Representation of a HomeSeer battery sensor device."""
     @property
     def unit_of_measurement(self):
         return '%'
@@ -112,3 +127,95 @@ class HSBattery(HSSensor):
     @property
     def device_class(self):
         return DEVICE_CLASS_BATTERY
+
+
+class HSTemperature(HSSensor):
+    """Representation of a HomeSeer temperature sensor device."""
+
+    @property
+    def unit_of_measurement(self):
+        if self._units is not None:
+            if str(self._units) == 'imperial':
+                return "°F"
+            elif str(self._units) == 'metric':
+                return "°C"
+            else:
+                return "?"
+        else:
+            return '?'
+
+    @property
+    def icon(self):
+        if self._units is not None:
+            if str(self._units) == 'imperial':
+                if self.state < 50:
+                    return 'mdi:thermomter-low'
+                elif self.state > 90:
+                    return 'mdi:thermometer-high'
+                else:
+                    return 'mdi:thermometer'
+            elif str(self._units) == 'metric':
+                if self.state < 10:
+                    return 'mdi:thermomter-low'
+                elif self.state > 33:
+                    return 'mdi:thermometer-high'
+                else:
+                    return 'mdi:thermometer'
+            else:
+                return 'mdi:thermometer'
+        else:
+            return 'mdi: thermometer'
+
+    @property
+    def device_class(self):
+        return DEVICE_CLASS_TEMPERATURE
+
+
+class HSHumidity(HSSensor):
+    """Representation of a HomeSeer humidity sensor device."""
+
+    @property
+    def unit_of_measurement(self):
+        return '%'
+
+    @property
+    def device_class(self):
+        return DEVICE_CLASS_HUMIDITY
+
+
+class HSLuminance(HSSensor):
+    """Representation of a HomeSeer light level sensor device."""
+
+    @property
+    def unit_of_measurement(self):
+        return '%'
+
+    @property
+    def device_class(self):
+        return DEVICE_CLASS_ILLUMINANCE
+
+
+class HSFanState(HSSensor):
+    """Representation of a HomeSeer HVAC fan state sensor device."""
+
+    @property
+    def icon(self):
+        if self.state == 0:
+            return 'mdi:fan-off'
+        else:
+            return 'mdi:fan'
+
+
+class HSOperatingState(HSSensor):
+    """Representation of a HomeSeer HVAC operating state sensor device."""
+
+    @property
+    def icon(self):
+        if self.state == 0:         # Idle
+            return 'mdi:fan-off'
+        elif self.state == 1:       # Heating
+            return 'mdi:flame'
+        elif self.state == 2:       # Cooling
+            return 'mdi:snowflake'
+        else:                       # Fan Only
+            return 'mdi:fan'
