@@ -46,6 +46,7 @@ homeseer:
   ascii_port: 11000
   username: default
   password: default
+  name_template: '{{ device.name }}'
   location_names: False
   allow_events: True
 ```
@@ -56,12 +57,14 @@ homeseer:
 |ascii_port|ASCII port of the HomeTroller|Optional, default 11000|
 |username|Username of the user to connect to the HomeTroller|Optional, default "default"|
 |password|Password of the user to connect to the HomeTroller|Optional, default "default"|
-|location_names|Append location2 + location to device name (see below)|Optional, default False|
+|name_template|Jinja2 template for naming devices|Optional, default "{{ device.name }}"|
+|location_names|Deprecated. Overrides default name_template to include locations| Optional, default False|
 |allow_events|Create Home Assistant scenes for HomeSeer events|Optional, default True|
 
-### location_names
+### name_template
 
-By default entities will be named only the name of the device in HomeSeer. If you want the location2 + location fields to be appended to the name, set location_names to True.
+By default entities will only include the name of the device in HomeSeer. If you want the location fields 
+to be included, you can add these fields to the "name_template" string.
 
 Example:
 - HomeSeer location2 "Main Floor"
@@ -69,6 +72,7 @@ Example:
 - HomeSeer device name "Lamp"
 
 Result:
-- location_names = False: Home Assistant entity will be called "Lamp"
-- location_names = True: Home Assistant entity will be called "Main Floor Living Room Lamp"
+- name_template = "{{ device.name }}": Home Assistant entity will be called "Lamp"
+- name_template = "{{ device.location }} - {{ device.name }}": Home Assistant entity will be called "Living Room - Lamp"
+- name_template = "{{ device.location2 }} {{ device.location }} {{ device.name }}": Home Assistant entity will be called "Main Floor Living Room Lamp"
 
