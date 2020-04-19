@@ -13,6 +13,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.const import CONF_EVENT, CONF_HOST, CONF_ID, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import EventOrigin
 from homeassistant.helpers import aiohttp_client, discovery
+from jinja2 import Template
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ DOMAIN = 'homeseer'
 
 CONF_HTTP_PORT = 'http_port'
 CONF_ASCII_PORT = 'ascii_port'
+CONF_NAME_TEMPLATE = 'name_template'
 CONF_LOCATION_NAMES = 'location_names'
 CONF_ALLOW_EVENTS = 'allow_events'
 
@@ -29,6 +31,8 @@ DEFAULT_HTTP_PORT = 80
 DEFAULT_PASSWORD = 'default'
 DEFAULT_USERNAME = 'default'
 DEFAULT_ASCII_PORT = 11000
+DEFAULT_NAME_TEMPLATE = '{{ device.name }}'
+DEFAULT_NAME_TEMPLATE_LOCATION = '{{ device.location2 }} {{ device.location }} {{ device.name }}'
 DEFAULT_LOCATION_NAMES = False
 DEFAULT_ALLOW_EVENTS = True
 
@@ -39,6 +43,7 @@ CONFIG_SCHEMA = vol.Schema({
         vol.Optional(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
         vol.Optional(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
         vol.Optional(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
+        vol.Optional(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE) : cv.string,
         vol.Optional(CONF_LOCATION_NAMES, default=DEFAULT_LOCATION_NAMES): cv.boolean,
         vol.Optional(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): cv.boolean
     })
@@ -57,10 +62,10 @@ async def async_setup(hass, config):
     password = config[CONF_PASSWORD]
     http_port = config[CONF_HTTP_PORT]
     ascii_port = config[CONF_ASCII_PORT]
-    location_names = config[CONF_LOCATION_NAMES]
+    name_template = DEFAULT_NAME_TEMPLATE_LOCATION if config[CONF_LOCATION_NAMES] else config[CONF_NAME_TEMPLATE]
     allow_events = config[CONF_ALLOW_EVENTS]
 
-    homeseer = HSConnection(hass, host, username, password, http_port, ascii_port, location_names)
+    homeseer = HSConnection(hass, host, username, password, http_port, ascii_port, name_template)
 
     await homeseer.api.initialize()
     if len(homeseer.devices) == 0 and len(homeseer.events) == 0:
@@ -97,13 +102,13 @@ async def async_setup(hass, config):
 
 class HSConnection:
     """Manages a connection between HomeSeer and Home Assistant."""
-    def __init__(self, hass, host, username, password, http_port, ascii_port, location_names):
+    def __init__(self, hass, host, username, password, http_port, ascii_port, name_template):
         from pyhs3 import HomeTroller
         self._hass = hass
         self._session = aiohttp_client.async_get_clientsession(self._hass)
         self.api = HomeTroller(host, self._session, username=username, password=password,
                                http_port=http_port, ascii_port=ascii_port)
-        self._location_names = location_names
+        self._name_template = Template(name_template)
         self.remotes = []
 
     @property
@@ -115,8 +120,8 @@ class HSConnection:
         return self.api.events
 
     @property
-    def location_names(self):
-        return self._location_names
+    def name_template(self):
+        return self._name_template
 
     async def start(self):
         await self.api.start_listener()
