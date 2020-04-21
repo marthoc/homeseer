@@ -1,21 +1,18 @@
 """
 Support for HomeSeer switch-type devices.
 """
-import logging
+
+from pyhs3 import HASS_SWITCHES, STATE_LISTENING
 
 from homeassistant.components.switch import SwitchDevice
-from . import DOMAIN
 
-_LOGGER = logging.getLogger(__name__)
+from .const import _LOGGER, DOMAIN
 
-DEPENDENCIES = ['homeseer']
+DEPENDENCIES = ["homeseer"]
 
 
-async def async_setup_platform(hass, config, async_add_entities,
-                               discovery_info=None):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up HomeSeer switch-type devices."""
-    from pyhs3 import HASS_SWITCHES
-
     switch_devices = []
     homeseer = hass.data[DOMAIN]
 
@@ -23,13 +20,14 @@ async def async_setup_platform(hass, config, async_add_entities,
         if device.device_type_string in HASS_SWITCHES:
             dev = HSSwitch(device, homeseer)
             switch_devices.append(dev)
-            _LOGGER.info('Added HomeSeer switch device: {}'.format(dev.name))
+            _LOGGER.info(f"Added HomeSeer switch-type device: {dev.name}")
 
     async_add_entities(switch_devices)
 
 
 class HSSwitch(SwitchDevice):
     """Representation of a HomeSeer switch-type device."""
+
     def __init__(self, device, connection):
         self._device = device
         self._connection = connection
@@ -37,13 +35,14 @@ class HSSwitch(SwitchDevice):
     @property
     def available(self):
         """Return whether the device is available."""
-        from pyhs3 import STATE_LISTENING
         return self._connection.api.state == STATE_LISTENING
 
     @property
     def device_state_attributes(self):
         attr = {
-            'Device Ref': self._device.ref
+            "Device Ref": self._device.ref,
+            "Location": self._device.location,
+            "Location 2": self._device.location2,
         }
         return attr
 
@@ -51,7 +50,9 @@ class HSSwitch(SwitchDevice):
     def name(self):
         """Return the name of the device."""
         if self._connection.location_names:
-            return '{} {} {}'.format(self._device.location2, self._device.location, self._device.name)
+            return (
+                f"{self._device.location2} {self._device.location} {self._device.name}"
+            )
         else:
             return self._device.name
 
@@ -62,7 +63,7 @@ class HSSwitch(SwitchDevice):
 
     @property
     def is_on(self):
-        """Return true if device is locked."""
+        """Return true if device is on."""
         return self._device.is_on
 
     async def async_turn_on(self, **kwargs):
