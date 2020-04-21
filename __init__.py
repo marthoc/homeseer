@@ -114,6 +114,7 @@ async def async_setup(hass, config):
 
 class HSConnection:
     """Manages a connection between HomeSeer and Home Assistant."""
+
     def __init__(
         self, hass, host, username, password, http_port, ascii_port, location_names
     ):
@@ -159,6 +160,7 @@ class HSConnection:
 
 class HSRemote:
     """Link remote-type devices that should fire events rather than create entities to Home Assistant."""
+
     def __init__(self, hass, device):
         self._hass = hass
         self._device = device
