@@ -1,8 +1,8 @@
 """
-Component for interacting with a HomeSeer HomeTroller or HS3 software installation.
+Custom component for interacting with a HomeSeer HomeTroller or HS3 software installation.
 
-For more details about this component, please refer to the documentation at
-https://home-assistant.io/components/homeseer/
+For more details about this custom component, please refer to the documentation at
+https://github.com/marthoc/homeseer
 """
 import asyncio
 
