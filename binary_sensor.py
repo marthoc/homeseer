@@ -53,8 +53,7 @@ class HSBinarySensor(BinarySensorDevice):
             return (
                 f"{self._device.location2} {self._device.location} {self._device.name}"
             )
-        else:
-            return self._device.name
+        return self._device.name
 
     @property
     def should_poll(self):
