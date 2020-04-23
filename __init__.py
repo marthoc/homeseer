@@ -37,7 +37,7 @@ from .const import (
 )
 
 
-REQUIREMENTS = ["pyhs3==0.9"]
+REQUIREMENTS = ["pyhs3==0.11"]
 
 CONFIG_SCHEMA = vol.Schema(
     {
