@@ -47,13 +47,14 @@ class HSLock(LockDevice):
         return attr
 
     @property
+    def unique_id(self):
+        """Return a unique ID for the device."""
+        return f"{self._connection.namespace}-{self._device.ref}"
+
+    @property
     def name(self):
         """Return the name of the device."""
-        if self._connection.location_names:
-            return (
-                f"{self._device.location2} {self._device.location} {self._device.name}"
-            )
-        return self._device.name
+        return f"{self._device.location2} {self._device.location} {self._device.name}"
 
     @property
     def should_poll(self):

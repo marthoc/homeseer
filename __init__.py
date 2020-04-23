@@ -25,11 +25,10 @@ from .const import (
     CONF_ALLOW_EVENTS,
     CONF_ASCII_PORT,
     CONF_HTTP_PORT,
-    CONF_LOCATION_NAMES,
+    CONF_NAMESPACE,
     DEFAULT_ALLOW_EVENTS,
     DEFAULT_ASCII_PORT,
     DEFAULT_HTTP_PORT,
-    DEFAULT_LOCATION_NAMES,
     DEFAULT_PASSWORD,
     DEFAULT_USERNAME,
     DOMAIN,
@@ -44,13 +43,11 @@ CONFIG_SCHEMA = vol.Schema(
         DOMAIN: vol.Schema(
             {
                 vol.Required(CONF_HOST): cv.string,
+                vol.Required(CONF_NAMESPACE): cv.string,
                 vol.Optional(CONF_PASSWORD, default=DEFAULT_PASSWORD): cv.string,
                 vol.Optional(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
                 vol.Optional(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
                 vol.Optional(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
-                vol.Optional(
-                    CONF_LOCATION_NAMES, default=DEFAULT_LOCATION_NAMES
-                ): cv.boolean,
                 vol.Optional(
                     CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS
                 ): cv.boolean,
@@ -65,15 +62,15 @@ async def async_setup(hass, config):
     """Set up the HomeSeer component."""
     config = config.get(DOMAIN)
     host = config[CONF_HOST]
+    namespace = config[CONF_NAMESPACE]
     username = config[CONF_USERNAME]
     password = config[CONF_PASSWORD]
     http_port = config[CONF_HTTP_PORT]
     ascii_port = config[CONF_ASCII_PORT]
-    location_names = config[CONF_LOCATION_NAMES]
     allow_events = config[CONF_ALLOW_EVENTS]
 
     homeseer = HSConnection(
-        hass, host, username, password, http_port, ascii_port, location_names
+        hass, host, username, password, http_port, ascii_port, namespace
     )
 
     await homeseer.api.initialize()
@@ -116,7 +113,7 @@ class HSConnection:
     """Manages a connection between HomeSeer and Home Assistant."""
 
     def __init__(
-        self, hass, host, username, password, http_port, ascii_port, location_names
+        self, hass, host, username, password, http_port, ascii_port, namespace
     ):
         self._hass = hass
         self._session = aiohttp_client.async_get_clientsession(self._hass)
@@ -128,7 +125,7 @@ class HSConnection:
             http_port=http_port,
             ascii_port=ascii_port,
         )
-        self._location_names = location_names
+        self._namespace = namespace
         self.remotes = []
 
     @property
@@ -140,8 +137,8 @@ class HSConnection:
         return self.api.events
 
     @property
-    def location_names(self):
-        return self._location_names
+    def namespace(self):
+        return self._namespace
 
     async def start(self):
         await self.api.start_listener()
