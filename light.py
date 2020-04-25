@@ -1,21 +1,18 @@
 """
 Support for HomeSeer light-type devices.
 """
-import logging
 
-from homeassistant.components.light import (ATTR_BRIGHTNESS, SUPPORT_BRIGHTNESS, Light)
-from . import DOMAIN
+from pyhs3 import HASS_LIGHTS, STATE_LISTENING
 
-_LOGGER = logging.getLogger(__name__)
+from homeassistant.components.light import ATTR_BRIGHTNESS, SUPPORT_BRIGHTNESS, Light
 
-DEPENDENCIES = ['homeseer']
+from .const import _LOGGER, DOMAIN
+
+DEPENDENCIES = ["homeseer"]
 
 
-async def async_setup_platform(hass, config, async_add_entities,
-                               discovery_info=None):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up HomeSeer light-type devices."""
-    from pyhs3 import HASS_LIGHTS
-
     light_devices = []
     homeseer = hass.data[DOMAIN]
 
@@ -23,13 +20,14 @@ async def async_setup_platform(hass, config, async_add_entities,
         if device.device_type_string in HASS_LIGHTS:
             dev = HSLight(device, homeseer)
             light_devices.append(dev)
-            _LOGGER.info('Added HomeSeer light-type device: {}'.format(dev.name))
+            _LOGGER.info(f"Added HomeSeer light-type device: {dev.name}")
 
     async_add_entities(light_devices)
 
 
 class HSLight(Light):
     """Representation of a HomeSeer light-type device."""
+
     def __init__(self, device, connection):
         self._device = device
         self._connection = connection
@@ -37,20 +35,26 @@ class HSLight(Light):
     @property
     def available(self):
         """Return whether the device is available."""
-        from pyhs3 import STATE_LISTENING
         return self._connection.api.state == STATE_LISTENING
 
     @property
     def device_state_attributes(self):
         attr = {
-            'Device Ref': self._device.ref
+            "Device Ref": self._device.ref,
+            "Location": self._device.location,
+            "Location 2": self._device.location2,
         }
         return attr
 
     @property
+    def unique_id(self):
+        """Return a unique ID for the device."""
+        return f"{self._connection.namespace}-{self._device.ref}"
+
+    @property
     def name(self):
         """Return the name of the device."""
-        return self._connection.name_template.render(device = self._device)
+        return self._connection.name_template.render(device=self._device).strip()
 
     @property
     def should_poll(self):
@@ -68,8 +72,7 @@ class HSLight(Light):
         bri = self._device.dim_percent * 255
         if bri > 255:
             return 255
-        else:
-            return bri
+        return bri
 
     @property
     def is_on(self):
@@ -79,7 +82,7 @@ class HSLight(Light):
     async def async_turn_on(self, **kwargs):
         """Turn the light on."""
         brightness = kwargs.get(ATTR_BRIGHTNESS, 255)
-        percent = int(brightness/255 * 100)
+        percent = int(brightness / 255 * 100)
         await self._device.dim(percent)
 
     async def async_turn_off(self, **kwargs):
