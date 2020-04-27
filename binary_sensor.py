@@ -54,7 +54,7 @@ class HSBinarySensor(BinarySensorDevice):
     @property
     def name(self):
         """Return the name of the device."""
-        return self._connection.name_template.render(device=self._device).strip()
+        return self._connection.name_template.async_render(device=self._device).strip()
 
     @property
     def should_poll(self):
