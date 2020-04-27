@@ -25,12 +25,14 @@ from .const import (
     CONF_ALLOW_EVENTS,
     CONF_ASCII_PORT,
     CONF_HTTP_PORT,
+    CONF_NAME_TEMPLATE,
     CONF_NAMESPACE,
     DEFAULT_ALLOW_EVENTS,
     DEFAULT_ASCII_PORT,
     DEFAULT_HTTP_PORT,
     DEFAULT_PASSWORD,
     DEFAULT_USERNAME,
+    DEFAULT_NAME_TEMPLATE,
     DOMAIN,
     HOMESEER_PLATFORMS,
 )
@@ -48,6 +50,7 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
                 vol.Optional(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
                 vol.Optional(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
+                vol.Optional(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE) : cv.template,
                 vol.Optional(
                     CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS
                 ): cv.boolean,
@@ -67,10 +70,13 @@ async def async_setup(hass, config):
     password = config[CONF_PASSWORD]
     http_port = config[CONF_HTTP_PORT]
     ascii_port = config[CONF_ASCII_PORT]
+    name_template = config[CONF_NAME_TEMPLATE]
     allow_events = config[CONF_ALLOW_EVENTS]
 
+    name_template.hass = hass
+
     homeseer = HSConnection(
-        hass, host, username, password, http_port, ascii_port, namespace
+        hass, host, username, password, http_port, ascii_port, namespace, name_template
     )
 
     await homeseer.api.initialize()
@@ -113,7 +119,7 @@ class HSConnection:
     """Manages a connection between HomeSeer and Home Assistant."""
 
     def __init__(
-        self, hass, host, username, password, http_port, ascii_port, namespace
+        self, hass, host, username, password, http_port, ascii_port, namespace, name_template
     ):
         self._hass = hass
         self._session = aiohttp_client.async_get_clientsession(self._hass)
@@ -126,6 +132,7 @@ class HSConnection:
             ascii_port=ascii_port,
         )
         self._namespace = namespace
+        self._name_template = name_template
         self.remotes = []
 
     @property
@@ -139,6 +146,10 @@ class HSConnection:
     @property
     def namespace(self):
         return self._namespace
+
+    @property
+    def name_template(self):
+        return self._name_template
 
     async def start(self):
         await self.api.start_listener()
