@@ -19,7 +19,6 @@ from homeassistant.const import (
 )
 from homeassistant.core import EventOrigin
 from homeassistant.helpers import aiohttp_client, discovery
-from jinja2 import Template
 
 from .const import (
     _LOGGER,
@@ -73,6 +72,8 @@ async def async_setup(hass, config):
     ascii_port = config[CONF_ASCII_PORT]
     name_template = config[CONF_NAME_TEMPLATE]
     allow_events = config[CONF_ALLOW_EVENTS]
+
+    name_template.hass = hass
 
     homeseer = HSConnection(
         hass, host, username, password, http_port, ascii_port, namespace, name_template
