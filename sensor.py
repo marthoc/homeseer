@@ -22,14 +22,11 @@ async def async_setup_platform(hass, config, async_add_entities,
 
     sensor_devices = []
     homeseer = hass.data[DOMAIN]
-    units = hass.config.units.name
 
     for device in homeseer.devices:
         if device.device_type_string in HASS_SENSORS:
             if device.device_type_string == DEVICE_ZWAVE_BATTERY:
                 dev = HSBattery(device, homeseer)
-            elif device.device_type_string == DEVICE_ZWAVE_TEMPERATURE:
-                dev = HSTemperature(device, homeseer, units)
             elif device.device_type_string == DEVICE_ZWAVE_RELATIVE_HUMIDITY:
                 dev = HSHumidity(device, homeseer)
             elif device.device_type_string == DEVICE_ZWAVE_LUMINANCE:
@@ -48,10 +45,9 @@ async def async_setup_platform(hass, config, async_add_entities,
 
 class HSSensor(Entity):
     """Representation of a HomeSeer sensor-type device."""
-    def __init__(self, device, connection, units=None):
+    def __init__(self, device, connection):
         self._device = device
         self._connection = connection
-        self._units = units
 
     @property
     def available(self):
@@ -125,48 +121,6 @@ class HSBattery(HSSensor):
         return DEVICE_CLASS_BATTERY
 
 
-class HSTemperature(HSSensor):
-    """Representation of a HomeSeer temperature sensor device."""
-
-    @property
-    def unit_of_measurement(self):
-        if self._units is not None:
-            if str(self._units) == 'imperial':
-                return "°F"
-            elif str(self._units) == 'metric':
-                return "°C"
-            else:
-                return "?"
-        else:
-            return '?'
-
-    @property
-    def icon(self):
-        if self._units is not None:
-            if str(self._units) == 'imperial':
-                if self.state < 50:
-                    return 'mdi:thermomter-low'
-                elif self.state > 90:
-                    return 'mdi:thermometer-high'
-                else:
-                    return 'mdi:thermometer'
-            elif str(self._units) == 'metric':
-                if self.state < 10:
-                    return 'mdi:thermomter-low'
-                elif self.state > 33:
-                    return 'mdi:thermometer-high'
-                else:
-                    return 'mdi:thermometer'
-            else:
-                return 'mdi:thermometer'
-        else:
-            return 'mdi: thermometer'
-
-    @property
-    def device_class(self):
-        return DEVICE_CLASS_TEMPERATURE
-
-
 class HSHumidity(HSSensor):
     """Representation of a HomeSeer humidity sensor device."""
 
@@ -201,17 +155,60 @@ class HSFanState(HSSensor):
         else:
             return 'mdi:fan'
 
+    @property
+    def state(self):
+        """Return the state of the device."""
+        if self._device.value == 0:
+            return "Off"
+        elif self._device.value == 1:
+            return "On"
+        elif self._device.value == 2:
+            return "On High"
+        elif self._device.value == 3:
+            return "On Medium"
+        elif self._device.value == 4:
+            return "On Circulation"
+        elif self._device.value == 5:
+            return "On Humidity Circulation"
+        elif self._device.value == 6:
+                return "On Right-Left Circulation"
+        elif self._device.value == 7:
+                return "On Up-Down Circulation"
+        elif self._device.value == 8:
+                return "On Quiet Circulation"
+        else:
+            return 'Unknown'
 
 class HSOperatingState(HSSensor):
     """Representation of a HomeSeer HVAC operating state sensor device."""
 
     @property
     def icon(self):
-        if self.state == 0:         # Idle
+        if self.state == "Idle":
             return 'mdi:fan-off'
-        elif self.state == 1:       # Heating
+        elif self.state == "Heating":
             return 'mdi:flame'
-        elif self.state == 2:       # Cooling
+        elif self.state == "Cooling":
             return 'mdi:snowflake'
-        else:                       # Fan Only
+        else:
             return 'mdi:fan'
+
+    @property
+    def state(self):
+        """Return the state of the device."""
+        if self._device.value == 0:
+            return "Idle"
+        elif self._device.value == 1:
+            return "Heating"
+        elif self._device.value == 2:
+            return "Cooling"
+        elif self._device.value == 3:
+            return "Fan Only"
+        elif self._device.value == 4:
+            return "Pending Heat"
+        elif self._device.value == 5:
+            return "Pending Cool"
+        elif self._device.value == 6:
+                return "Vent-Economizer"
+        else:
+            return 'Unknown'
