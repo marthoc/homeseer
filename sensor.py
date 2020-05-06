@@ -1,25 +1,19 @@
 """
 Support for HomeSeer sensor-type devices.
 """
-import logging
 
-from homeassistant.const import (DEVICE_CLASS_BATTERY, DEVICE_CLASS_TEMPERATURE, DEVICE_CLASS_HUMIDITY,
-                                 DEVICE_CLASS_ILLUMINANCE)
+from pyhs3 import HASS_SENSORS, DEVICE_ZWAVE_BATTERY, STATE_LISTENING
+
+from homeassistant.const import DEVICE_CLASS_BATTERY, UNIT_PERCENTAGE
 from homeassistant.helpers.entity import Entity
-from . import DOMAIN
 
-_LOGGER = logging.getLogger(__name__)
+from .const import _LOGGER, DOMAIN
 
-DEPENDENCIES = ['homeseer']
+DEPENDENCIES = ["homeseer"]
 
 
-async def async_setup_platform(hass, config, async_add_entities,
-                               discovery_info=None):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up HomeSeer sensor-type devices."""
-    from pyhs3 import (HASS_SENSORS, DEVICE_ZWAVE_BATTERY, DEVICE_ZWAVE_TEMPERATURE,
-                       DEVICE_ZWAVE_RELATIVE_HUMIDITY, DEVICE_ZWAVE_LUMINANCE,
-                       DEVICE_ZWAVE_FAN_STATE, DEVICE_ZWAVE_OPERATING_STATE)
-
     sensor_devices = []
     homeseer = hass.data[DOMAIN]
 
@@ -38,13 +32,14 @@ async def async_setup_platform(hass, config, async_add_entities,
             else:
                 dev = HSSensor(device, homeseer)
             sensor_devices.append(dev)
-            _LOGGER.info('Added HomeSeer sensor-type device: {}'.format(dev.name))
+            _LOGGER.info(f"Added HomeSeer sensor-type device: {dev.name}")
 
     async_add_entities(sensor_devices)
 
 
 class HSSensor(Entity):
     """Representation of a HomeSeer sensor-type device."""
+
     def __init__(self, device, connection):
         self._device = device
         self._connection = connection
@@ -52,25 +47,26 @@ class HSSensor(Entity):
     @property
     def available(self):
         """Return whether the device is available."""
-        from pyhs3 import STATE_LISTENING
         return self._connection.api.state == STATE_LISTENING
 
     @property
     def device_state_attributes(self):
         attr = {
-            'Device Ref': self._device.ref,
-            'Location': self._device.location,
-            'Location2': self._device.location2
+            "Device Ref": self._device.ref,
+            "Location": self._device.location,
+            "Location 2": self._device.location2,
         }
         return attr
 
     @property
+    def unique_id(self):
+        """Return a unique ID for the device."""
+        return f"{self._connection.namespace}-{self._device.ref}"
+
+    @property
     def name(self):
         """Return the name of the device."""
-        if self._connection.location_names:
-            return '{} {} {}'.format(self._device.location2, self._device.location, self._device.name)
-        else:
-            return self._device.name
+        return self._connection.name_template.async_render(device=self._device).strip()
 
     @property
     def state(self):
@@ -88,33 +84,34 @@ class HSSensor(Entity):
 
 
 class HSBattery(HSSensor):
-    """Representation of a HomeSeer battery sensor device."""
+    """Representation of a HomeSeer device that reports battery level."""
+
     @property
     def unit_of_measurement(self):
-        return '%'
+        return UNIT_PERCENTAGE
 
     @property
     def icon(self):
         if self.state == 100:
-            return 'mdi:battery'
+            return "mdi:battery"
         elif self.state > 89:
-            return 'mdi:battery-90'
+            return "mdi:battery-90"
         elif self.state > 79:
-            return 'mdi:battery-80'
+            return "mdi:battery-80"
         elif self.state > 69:
-            return 'mdi:battery-70'
+            return "mdi:battery-70"
         elif self.state > 59:
-            return 'mdi:battery-60'
+            return "mdi:battery-60"
         elif self.state > 49:
-            return 'mdi:battery-50'
+            return "mdi:battery-50"
         elif self.state > 39:
-            return 'mdi:battery-40'
+            return "mdi:battery-40"
         elif self.state > 29:
-            return 'mdi:battery-30'
+            return "mdi:battery-30"
         elif self.state > 19:
-            return 'mdi:battery-20'
+            return "mdi:battery-20"
         elif self.state > 9:
-            return 'mdi:battery-10'
+            return "mdi:battery-10"
 
     @property
     def device_class(self):
@@ -126,7 +123,7 @@ class HSHumidity(HSSensor):
 
     @property
     def unit_of_measurement(self):
-        return '%'
+        return UNIT_PERCENTAGE
 
     @property
     def device_class(self):
@@ -138,7 +135,7 @@ class HSLuminance(HSSensor):
 
     @property
     def unit_of_measurement(self):
-        return '%'
+        return UNIT_PERCENTAGE
 
     @property
     def device_class(self):

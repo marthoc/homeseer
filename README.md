@@ -17,7 +17,6 @@ Z-Wave devices of the following types should create entities in Home Assistant:
 - Z-Wave Fan State for HVAC (as Home Assistant sensor)
 - Z-Wave Operating State for HVAC (as Home Assistant sensor)
 
-
 HomeSeer Events will be created as Home Assistant scenes (triggering the scene in Home Assistant will run the HomeSeer event).
 
 ### Central Scene devices
@@ -48,26 +47,33 @@ HomeSeer devices of the type "Z-Wave Central Scene" will not create an entity in
 ```yaml
 homeseer:
   host:  192.168.1.10
+  namespace: homeseer
   http_port: 80
   ascii_port: 11000
   username: default
   password: default
-  location_names: False
+  name_template: '{{ device.name }}'
   allow_events: True
 ```
 |Parameter|Description|Required/Optional|
 |---------|-----------|-----------------|
 |host|IP address of the HomeSeer HS3 HomeTroller|Required|
+|namespace|Unique string identifying the HomeSeer instance|Required|
 |http_port|HTTP port of the HomeTroller|Optional, default 80|
 |ascii_port|ASCII port of the HomeTroller|Optional, default 11000|
 |username|Username of the user to connect to the HomeTroller|Optional, default "default"|
 |password|Password of the user to connect to the HomeTroller|Optional, default "default"|
-|location_names|Prepend location2 + location to device name (see below)|Optional, default False|
+|name_template|Jinja2 template for naming devices|Optional, default "{{ device.location2 }} {{ device.location }} {{ device.name }}"|
 |allow_events|Create Home Assistant scenes for HomeSeer events|Optional, default True|
 
-### location_names
+### Namespace
 
-By default entities will be named only the name of the device in HomeSeer. If you want the location2 + location fields to be prepended to the name, set location_names to True.
+In order to generate unique ids for entities to enable support for the entity registry (most importantly, allowing users to rename entities and change entity ids from the UI), a unique string is required. Namespace can be any string you like. If this string changes, all entities will generate new entries in the entity registry, so only change this string if you absolutely know what you are doing.
+
+### Name Template
+
+The HomeSeer integration will generate default entity names and ids in HomeAssistant when devices are added for the first time.
+By default, the generated name is of the form "location2 location name". You can customize the name generation by specifying your own Jinja2 template in "name_template". This template will only have an effect on newly added devices and won't change the names of existing entities.
 
 Example:
 - HomeSeer location2 "Main Floor"
@@ -75,5 +81,6 @@ Example:
 - HomeSeer device name "Lamp"
 
 Result:
-- location_names = False: Home Assistant entity will be called "Lamp"
-- location_names = True: Home Assistant entity will be called "Main Floor Living Room Lamp"
+- name_template = "{{ device.name }}": Home Assistant entity will be called "Lamp"
+- name_template = "{{ device.location }} - {{ device.name }}": Home Assistant entity will be called "Living Room - Lamp"
+- name_template = "HomeSeer - {{ device.name }}": Home Assistant entity will be called "HomeSeer - Lamp"

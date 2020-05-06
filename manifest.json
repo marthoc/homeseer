@@ -4,5 +4,5 @@
   "documentation": "https://github.com/marthoc/homeseer",
   "dependencies": [],
   "codeowners": ["@marthoc"],
-  "requirements": ["pyhs3==0.10"]
+  "requirements": ["pyhs3==0.11"]
 }
