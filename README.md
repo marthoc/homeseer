@@ -73,7 +73,9 @@ In order to generate unique ids for entities to enable support for the entity re
 ### Name Template
 
 The HomeSeer integration will generate default entity names and ids in HomeAssistant when devices are added for the first time.
-By default, the generated name is of the form "location2 location name". You can customize the name generation by specifying your own Jinja2 template in "name_template". This template will only have an effect on newly added devices and won't change the names of existing entities.
+By default, the generated name is of the form "location2 location name". You can customize the name generation by 
+specifying your own Jinja2 template in "name_template". This template will only have an effect on newly added devices and
+won't change the names of existing entities.
 
 Example:
 - HomeSeer location2 "Main Floor"
@@ -84,3 +86,4 @@ Result:
 - name_template = "{{ device.name }}": Home Assistant entity will be called "Lamp"
 - name_template = "{{ device.location }} - {{ device.name }}": Home Assistant entity will be called "Living Room - Lamp"
 - name_template = "HomeSeer - {{ device.name }}": Home Assistant entity will be called "HomeSeer - Lamp"
+
