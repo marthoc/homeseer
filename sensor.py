@@ -2,9 +2,19 @@
 Support for HomeSeer sensor-type devices.
 """
 
-from pyhs3 import HASS_SENSORS, DEVICE_ZWAVE_BATTERY, STATE_LISTENING
+from pyhs3 import (DEVICE_ZWAVE_BATTERY,
+                   DEVICE_ZWAVE_FAN_STATE,
+                   DEVICE_ZWAVE_LUMINANCE,
+                   DEVICE_ZWAVE_OPERATING_STATE,
+                   DEVICE_ZWAVE_RELATIVE_HUMIDITY,
+                   HASS_SENSORS,
+                   STATE_LISTENING)
 
-from homeassistant.const import DEVICE_CLASS_BATTERY, UNIT_PERCENTAGE
+from homeassistant.const import (DEVICE_CLASS_BATTERY,
+                                 DEVICE_CLASS_HUMIDITY,
+                                 DEVICE_CLASS_ILLUMINANCE,
+                                 UNIT_PERCENTAGE)
+
 from homeassistant.helpers.entity import Entity
 
 from .const import _LOGGER, DOMAIN
