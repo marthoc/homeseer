@@ -11,6 +11,11 @@ Z-Wave devices of the following types should create entities in Home Assistant:
 - Z-Wave Switch Binary (as Home Assistant switch)
 - Z-Wave Switch Multilevel (as Home Assistant light)
 - Z-Wave Central Scene (as Home Assistant event - see below)
+- Z-Wave Temperature (as Home Assistant sensor)
+- Z-Wave Relative Humidity (as Home Assistant sensor)
+- Z-Wave Luminance (as Home Assistant sensor)
+- Z-Wave Fan State for HVAC (as Home Assistant sensor)
+- Z-Wave Operating State for HVAC (as Home Assistant sensor)
 
 HomeSeer Events will be created as Home Assistant scenes (triggering the scene in Home Assistant will run the HomeSeer event).
 
@@ -54,7 +59,7 @@ homeseer:
 |---------|-----------|-----------------|
 |host|IP address of the HomeSeer HS3 HomeTroller|Required|
 |namespace|Unique string identifying the HomeSeer instance|Required|
-|port|HTTP port of the HomeTroller|Optional, default 80|
+|http_port|HTTP port of the HomeTroller|Optional, default 80|
 |ascii_port|ASCII port of the HomeTroller|Optional, default 11000|
 |username|Username of the user to connect to the HomeTroller|Optional, default "default"|
 |password|Password of the user to connect to the HomeTroller|Optional, default "default"|
@@ -62,6 +67,7 @@ homeseer:
 |allow_events|Create Home Assistant scenes for HomeSeer events|Optional, default True|
 
 ### Namespace
+
 In order to generate unique ids for entities to enable support for the entity registry (most importantly, allowing users to rename entities and change entity ids from the UI), a unique string is required. Namespace can be any string you like. If this string changes, all entities will generate new entries in the entity registry, so only change this string if you absolutely know what you are doing.
 
 ### Name Template
