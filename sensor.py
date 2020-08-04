@@ -33,7 +33,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     for device in homeseer.devices:
         if device.device_type_string in HASS_SENSORS:
-            dev = get_sensor(device, homeseer)
+            dev = get_sensor_device(device, homeseer)
             sensor_devices.append(dev)
             _LOGGER.info(f"Added HomeSeer sensor-type device: {dev.name}")
 
@@ -212,7 +212,7 @@ class HSOperatingState(HSSensor):
         return None
 
 
-def get_sensor(device, homeseer):
+def get_sensor_device(device, homeseer):
     """Return the proper sensor object based on device type."""
     if device.device_type_string == DEVICE_ZWAVE_BATTERY:
         return HSBattery(device, homeseer)
