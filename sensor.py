@@ -41,7 +41,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 
 class HSSensor(Entity):
-    """Representation of a HomeSeer sensor-type device."""
+    """Base representation of a HomeSeer sensor-type device."""
 
     def __init__(self, device, connection):
         self._device = device
@@ -115,6 +115,7 @@ class HSBattery(HSSensor):
             return "mdi:battery-20"
         elif self.state > 9:
             return "mdi:battery-10"
+        return None
 
     @property
     def device_class(self):
@@ -152,8 +153,7 @@ class HSFanState(HSSensor):
     def icon(self):
         if self.state == 0:
             return "mdi:fan-off"
-        else:
-            return "mdi:fan"
+        return "mdi:fan"
 
     @property
     def state(self):
@@ -176,8 +176,7 @@ class HSFanState(HSSensor):
             return "On Up-Down Circulation"
         elif self._device.value == 8:
             return "On Quiet Circulation"
-        else:
-            return "Unknown"
+        return None
 
 
 class HSOperatingState(HSSensor):
@@ -191,8 +190,7 @@ class HSOperatingState(HSSensor):
             return "mdi:flame"
         elif self.state == "Cooling":
             return "mdi:snowflake"
-        else:
-            return "mdi:fan"
+        return "mdi:fan"
 
     @property
     def state(self):
@@ -211,8 +209,7 @@ class HSOperatingState(HSSensor):
             return "Pending Cool"
         elif self._device.value == 6:
             return "Vent-Economizer"
-        else:
-            return "Unknown"
+        return None
 
 
 def get_sensor(device, homeseer):
