@@ -114,3 +114,6 @@ dmypy.json
 .pyre/
 
 .idea/
+
+bin
+pyvenv.cfg
