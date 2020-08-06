@@ -4,7 +4,7 @@ Support for HomeSeer switch-type devices.
 
 from pyhs3 import HASS_SWITCHES, STATE_LISTENING
 
-from homeassistant.components.switch import SwitchDevice
+from homeassistant.components.switch import SwitchEntity
 
 from .const import _LOGGER, DOMAIN
 
@@ -25,7 +25,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(switch_devices)
 
 
-class HSSwitch(SwitchDevice):
+class HSSwitch(SwitchEntity):
     """Representation of a HomeSeer switch-type device."""
 
     def __init__(self, device, connection):
