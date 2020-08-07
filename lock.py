@@ -4,7 +4,7 @@ Support for HomeSeer lock-type devices.
 
 from pyhs3 import HASS_LOCKS, STATE_LISTENING
 
-from homeassistant.components.lock import LockDevice
+from homeassistant.components.lock import LockEntity
 
 from .const import _LOGGER, DOMAIN
 
@@ -25,7 +25,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(lock_devices)
 
 
-class HSLock(LockDevice):
+class HSLock(LockEntity):
     """Representation of a HomeSeer lock device."""
 
     def __init__(self, device, connection):

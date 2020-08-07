@@ -4,7 +4,7 @@ Support for HomeSeer cover-type devices.
 
 from pyhs3 import HASS_COVERS, STATE_LISTENING
 
-from homeassistant.components.cover import CoverDevice
+from homeassistant.components.cover import CoverEntity
 from homeassistant.const import STATE_CLOSED, STATE_CLOSING, STATE_OPENING
 
 from .const import _LOGGER, DOMAIN
@@ -26,7 +26,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(cover_devices)
 
 
-class HSCover(CoverDevice):
+class HSCover(CoverEntity):
     """Representation of a HomeSeer cover-type device."""
 
     def __init__(self, device, connection):

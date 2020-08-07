@@ -4,7 +4,7 @@ Support for HomeSeer light-type devices.
 
 from pyhs3 import HASS_LIGHTS, STATE_LISTENING
 
-from homeassistant.components.light import ATTR_BRIGHTNESS, SUPPORT_BRIGHTNESS, Light
+from homeassistant.components.light import ATTR_BRIGHTNESS, SUPPORT_BRIGHTNESS, LightEntity
 
 from .const import _LOGGER, DOMAIN
 
@@ -25,7 +25,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(light_devices)
 
 
-class HSLight(Light):
+class HSLight(LightEntity):
     """Representation of a HomeSeer light-type device."""
 
     def __init__(self, device, connection):
