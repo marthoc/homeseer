@@ -16,12 +16,11 @@ from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_ILLUMINANCE,
-    UNIT_PERCENTAGE,
-)
+    )
 
 from homeassistant.helpers.entity import Entity
 
-from .const import _LOGGER, DOMAIN
+from .const import _LOGGER, DOMAIN, UNIT_PERCENTAGE
 
 DEPENDENCIES = ["homeseer"]
 

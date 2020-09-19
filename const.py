@@ -8,6 +8,8 @@ _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "homeseer"
 
+UNIT_PERCENTAGE = "%"
+
 CONF_HTTP_PORT = "http_port"
 CONF_ASCII_PORT = "ascii_port"
 CONF_ALLOW_EVENTS = "allow_events"
