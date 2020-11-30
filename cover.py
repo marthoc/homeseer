@@ -128,8 +128,7 @@ class HSBlind(HSCover):
     @property
     def supported_features(self):
         """Return the features supported by the device."""
-        features = SUPPORT_OPEN | SUPPORT_CLOSE | SUPPORT_SET_POSITION
-        return features
+        return SUPPORT_OPEN | SUPPORT_CLOSE | SUPPORT_SET_POSITION
 
     @property
     def device_class(self):
@@ -139,12 +138,12 @@ class HSBlind(HSCover):
     @property
     def current_cover_position(self):
         """Return the current position of the cover."""
-        return self._device.dim_percent
+        return int(self._device.dim_percent * 100)
 
     @property
     def is_closed(self):
         """Return if the cover is closed or not."""
-        return self._device.dim_percent == 0
+        return not self._device.is_on
 
     async def async_open_cover(self, **kwargs):
         await self._device.on()
