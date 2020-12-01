@@ -1,0 +1,10 @@
+control_device_by_value:
+  description: >-
+    Set the value of a HomeSeer device.
+  fields:
+    ref:
+      description: Device ref of the HomeSeer device to control (integer).
+      example: 145
+    value:
+      description: Value to set the HomeSeer device to (string).
+      example: "255"

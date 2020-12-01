@@ -22,6 +22,8 @@ from homeassistant.helpers import aiohttp_client, discovery
 
 from .const import (
     _LOGGER,
+    ATTR_REF,
+    ATTR_VALUE,
     CONF_ALLOW_EVENTS,
     CONF_ASCII_PORT,
     CONF_FORCED_COVERS,
@@ -65,6 +67,12 @@ CONFIG_SCHEMA = vol.Schema(
         )
     },
     extra=vol.ALLOW_EXTRA,
+)
+
+SERVICE_CONTROL_DEVICE_BY_VALUE = "control_device_by_value"
+
+SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA = vol.Schema(
+    {vol.Required(ATTR_REF): cv.positive_int, vol.Required(ATTR_VALUE): cv.string}
 )
 
 
@@ -121,6 +129,25 @@ async def async_setup(hass, config):
     hass.data[DOMAIN] = homeseer
 
     hass.bus.async_listen_once("homeassistant_stop", homeseer.stop)
+
+    async def control_device_by_value(call):
+        ref = call.data[ATTR_REF]
+        value = call.data[ATTR_VALUE]
+
+        params = {
+            "request": "controldevicebyvalue",
+            "ref": ref,
+            "value": value,
+        }
+
+        await homeseer.api._request("get", params=params)
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_CONTROL_DEVICE_BY_VALUE,
+        control_device_by_value,
+        schema=SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA,
+    )
 
     return True
 
