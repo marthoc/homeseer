@@ -14,7 +14,8 @@ from pyhs3 import (
     HS_UNIT_CELSIUS,
     HS_UNIT_FAHRENHEIT,
     HS_UNIT_LUX,
-    HS_UNIT_PERCENTAGE
+    HS_UNIT_PERCENTAGE,
+    parse_uom
 )
 
 from homeassistant.const import (
@@ -226,23 +227,25 @@ class HSSensorMultilevel(HSSensor):
 
     @property
     def device_class(self):
-        if self._device.uom == HS_UNIT_LUX:
+        uom = parse_uom(self._device)
+        if uom == HS_UNIT_LUX:
             return DEVICE_CLASS_ILLUMINANCE
-        if self._device.uom == HS_UNIT_CELSIUS:
+        if uom == HS_UNIT_CELSIUS:
             return DEVICE_CLASS_TEMPERATURE
-        if self._device.uom == HS_UNIT_FAHRENHEIT:
+        if uom == HS_UNIT_FAHRENHEIT:
             return DEVICE_CLASS_TEMPERATURE
         return None
 
     @property
     def unit_of_measurement(self):
-        if self._device.uom == HS_UNIT_LUX:
+        uom = parse_uom(self._device)
+        if uom == HS_UNIT_LUX:
             return LIGHT_LUX
-        if self._device.uom == HS_UNIT_CELSIUS:
+        if uom == HS_UNIT_CELSIUS:
             return TEMP_CELSIUS
-        if self._device.uom == HS_UNIT_FAHRENHEIT:
+        if uom == HS_UNIT_FAHRENHEIT:
             return TEMP_FAHRENHEIT
-        if self._device.uom == HS_UNIT_PERCENTAGE:
+        if uom == HS_UNIT_PERCENTAGE:
             return PERCENTAGE
         return None
 
