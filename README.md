@@ -9,7 +9,7 @@ Z-Wave devices of the following types should create entities in Home Assistant:
 - Z-Wave Sensor Binary (as Home Assistant binary sensor)
 - Z-Wave Switch (as Home Assistant switch)
 - Z-Wave Switch Binary (as Home Assistant switch)
-- Z-Wave Switch Multilevel (as Home Assistant light)
+- Z-Wave Switch Multilevel (as Home Assistant light or cover)
 - Z-Wave Central Scene (as Home Assistant event - see below)
 - Z-Wave Temperature (as Home Assistant sensor)
 - Z-Wave Relative Humidity (as Home Assistant sensor)
@@ -54,6 +54,7 @@ homeseer:
   password: default
   name_template: '{{ device.name }}'
   allow_events: True
+  forced_covers: [ 10, 20, 30 ]
 ```
 |Parameter|Description|Required/Optional|
 |---------|-----------|-----------------|
@@ -65,6 +66,7 @@ homeseer:
 |password|Password of the user to connect to the HomeTroller|Optional, default "default"|
 |name_template|Jinja2 template for naming devices|Optional, default "{{ device.location2 }} {{ device.location }} {{ device.name }}"|
 |allow_events|Create Home Assistant scenes for HomeSeer events|Optional, default True|
+|forced_covers|List of refs of Z-Wave Switch Multilevels that should be represented in HA as covers|Optional, default all ZWSM to lights|
 
 ### Namespace
 
