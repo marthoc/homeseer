@@ -72,7 +72,12 @@ CONFIG_SCHEMA = vol.Schema(
 SERVICE_CONTROL_DEVICE_BY_VALUE = "control_device_by_value"
 
 SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA = vol.Schema(
-    {vol.Required(ATTR_REF): cv.positive_int, vol.Required(ATTR_VALUE): cv.string}
+    {
+        vol.Required(ATTR_REF): cv.positive_int,
+        vol.Required(ATTR_VALUE): vol.Any(
+            cv.string, cv.positive_int, cv.positive_float
+        ),
+    }
 )
 
 
