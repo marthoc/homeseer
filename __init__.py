@@ -41,9 +41,6 @@ from .const import (
     HOMESEER_PLATFORMS,
 )
 
-
-REQUIREMENTS = ["pyhs3==0.11"]
-
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
@@ -139,13 +136,7 @@ async def async_setup(hass, config):
         ref = call.data[ATTR_REF]
         value = call.data[ATTR_VALUE]
 
-        params = {
-            "request": "controldevicebyvalue",
-            "ref": ref,
-            "value": value,
-        }
-
-        await homeseer.api._request("get", params=params)
+        await homeseer.api.control_device_by_value(ref, value)
 
     hass.services.async_register(
         DOMAIN,
