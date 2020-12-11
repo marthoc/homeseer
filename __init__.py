@@ -108,7 +108,7 @@ async def async_setup(hass, config):
 
     homeseer.add_remotes()
 
-    if not allow_events:
+    if not allow_events and len(allowed_event_groups) == 0:
         HOMESEER_PLATFORMS.remove("scene")
 
     for platform in HOMESEER_PLATFORMS:
