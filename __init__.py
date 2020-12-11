@@ -22,11 +22,13 @@ from homeassistant.helpers import aiohttp_client, discovery
 
 from .const import (
     _LOGGER,
+    CONF_ALLOWED_EVENT_GROUPS,
     CONF_ALLOW_EVENTS,
     CONF_ASCII_PORT,
     CONF_HTTP_PORT,
     CONF_NAME_TEMPLATE,
     CONF_NAMESPACE,
+    DEFAULT_ALLOWED_EVENT_GROUPS,
     DEFAULT_ALLOW_EVENTS,
     DEFAULT_ASCII_PORT,
     DEFAULT_HTTP_PORT,
@@ -50,10 +52,15 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
                 vol.Optional(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
                 vol.Optional(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
-                vol.Optional(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE) : cv.template,
+                vol.Optional(
+                    CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE
+                ): cv.template,
                 vol.Optional(
                     CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS
                 ): cv.boolean,
+                vol.Optional(
+                    CONF_ALLOWED_EVENT_GROUPS, default=DEFAULT_ALLOWED_EVENT_GROUPS
+                ): cv.ensure_list,
             }
         )
     },
@@ -72,6 +79,7 @@ async def async_setup(hass, config):
     ascii_port = config[CONF_ASCII_PORT]
     name_template = config[CONF_NAME_TEMPLATE]
     allow_events = config[CONF_ALLOW_EVENTS]
+    allowed_event_groups = config[CONF_ALLOWED_EVENT_GROUPS]
 
     name_template.hass = hass
 
@@ -105,7 +113,13 @@ async def async_setup(hass, config):
 
     for platform in HOMESEER_PLATFORMS:
         hass.async_create_task(
-            discovery.async_load_platform(hass, platform, DOMAIN, {}, config)
+            discovery.async_load_platform(
+                hass,
+                platform,
+                DOMAIN,
+                {CONF_ALLOWED_EVENT_GROUPS: allowed_event_groups},
+                config,
+            )
         )
 
     hass.data[DOMAIN] = homeseer
@@ -119,7 +133,15 @@ class HSConnection:
     """Manages a connection between HomeSeer and Home Assistant."""
 
     def __init__(
-        self, hass, host, username, password, http_port, ascii_port, namespace, name_template
+        self,
+        hass,
+        host,
+        username,
+        password,
+        http_port,
+        ascii_port,
+        namespace,
+        name_template,
     ):
         self._hass = hass
         self._session = aiohttp_client.async_get_clientsession(self._hass)
