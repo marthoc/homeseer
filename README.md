@@ -7,9 +7,10 @@ Z-Wave devices of the following types should create entities in Home Assistant:
 - Z-Wave Battery (as Home Assistant sensor)
 - Z-Wave Door Lock (as Home Assistant lock)
 - Z-Wave Sensor Binary (as Home Assistant binary sensor)
+- Z-Wave Sensor Multilevel (as Home Assistant sensor) 
 - Z-Wave Switch (as Home Assistant switch)
 - Z-Wave Switch Binary (as Home Assistant switch)
-- Z-Wave Switch Multilevel (as Home Assistant light)
+- Z-Wave Switch Multilevel (as Home Assistant light or cover)
 - Z-Wave Central Scene (as Home Assistant event - see below)
 - Z-Wave Temperature (as Home Assistant sensor)
 - Z-Wave Relative Humidity (as Home Assistant sensor)
@@ -54,6 +55,8 @@ homeseer:
   password: default
   name_template: '{{ device.name }}'
   allow_events: True
+  forced_covers: [ 10, 20, 30 ]
+  allowed_event_groups: [ "Light Events", "Lock Events" ]
 ```
 |Parameter|Description|Required/Optional|
 |---------|-----------|-----------------|
@@ -65,6 +68,8 @@ homeseer:
 |password|Password of the user to connect to the HomeTroller|Optional, default "default"|
 |name_template|Jinja2 template for naming devices|Optional, default "{{ device.location2 }} {{ device.location }} {{ device.name }}"|
 |allow_events|Create Home Assistant scenes for HomeSeer events|Optional, default True|
+|forced_covers|List of refs of Z-Wave Switch Multilevels that should be represented in HA as covers|Optional, default all ZWSM to lights|
+|allowed_event_groups|List of names of HomeSeer event groups to import; all other groups will be ignored|Optional, default all groups imported|
 
 ### Namespace
 
@@ -86,4 +91,19 @@ Result:
 - name_template = "{{ device.name }}": Home Assistant entity will be called "Lamp"
 - name_template = "{{ device.location }} - {{ device.name }}": Home Assistant entity will be called "Living Room - Lamp"
 - name_template = "HomeSeer - {{ device.name }}": Home Assistant entity will be called "HomeSeer - Lamp"
+
+## Services
+
+The integration exposes the following services:
+- homeseer.control_device_by_value
+
+### homeseer.control_device_by_value
+
+Allows the user to set any value on a HomeSeer device.  
+
+|Parameter|Description|Format|Required?|
+|---------|-----------|------|---------|
+|ref|Ref corresponding to the HomeSeer device |Integer|True|
+|value|Value to set the device to (integer) |Integer|True|
+
 
