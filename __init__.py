@@ -24,12 +24,14 @@ from .const import (
     _LOGGER,
     ATTR_REF,
     ATTR_VALUE,
+    CONF_ALLOWED_EVENT_GROUPS,
     CONF_ALLOW_EVENTS,
     CONF_ASCII_PORT,
     CONF_FORCED_COVERS,
     CONF_HTTP_PORT,
     CONF_NAME_TEMPLATE,
     CONF_NAMESPACE,
+    DEFAULT_ALLOWED_EVENT_GROUPS,
     DEFAULT_ALLOW_EVENTS,
     DEFAULT_ASCII_PORT,
     DEFAULT_FORCED_COVERS,
@@ -57,6 +59,9 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(
                     CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS
                 ): cv.boolean,
+                vol.Optional(
+                    CONF_ALLOWED_EVENT_GROUPS, default=DEFAULT_ALLOWED_EVENT_GROUPS
+                ): cv.ensure_list,
                 vol.Optional(
                     CONF_FORCED_COVERS, default=DEFAULT_FORCED_COVERS
                 ): cv.ensure_list,
@@ -89,6 +94,7 @@ async def async_setup(hass, config):
     ascii_port = config[CONF_ASCII_PORT]
     name_template = config[CONF_NAME_TEMPLATE]
     allow_events = config[CONF_ALLOW_EVENTS]
+    allowed_event_groups = config[CONF_ALLOWED_EVENT_GROUPS]
     forced_covers = config[CONF_FORCED_COVERS]
 
     name_template.hass = hass
@@ -118,13 +124,20 @@ async def async_setup(hass, config):
 
     homeseer.add_remotes()
 
-    if not allow_events:
+    if not allow_events and len(allowed_event_groups) == 0:
         HOMESEER_PLATFORMS.remove("scene")
 
     for platform in HOMESEER_PLATFORMS:
         hass.async_create_task(
             discovery.async_load_platform(
-                hass, platform, DOMAIN, {CONF_FORCED_COVERS: forced_covers}, config
+                hass,
+                platform,
+                DOMAIN,
+                {
+                    CONF_ALLOWED_EVENT_GROUPS: allowed_event_groups,
+                    CONF_FORCED_COVERS: forced_covers,
+                },
+                config,
             )
         )
 
