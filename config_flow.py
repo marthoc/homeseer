@@ -35,16 +35,16 @@ ENTRY_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_NAMESPACE, default=DEFAULT_NAMESPACE): cv.string,
-        vol.Optional(CONF_PASSWORD, default=DEFAULT_PASSWORD): cv.string,
-        vol.Optional(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
-        vol.Optional(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
-        vol.Optional(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
-        vol.Optional(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE): cv.template,
-        vol.Optional(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): cv.boolean,
-        vol.Optional(
+        vol.Required(CONF_PASSWORD, default=DEFAULT_PASSWORD): cv.string,
+        vol.Required(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
+        vol.Required(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
+        vol.Required(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
+        vol.Required(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE): cv.template,
+        vol.Required(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): cv.boolean,
+        vol.Required(
             CONF_ALLOWED_EVENT_GROUPS, default=DEFAULT_ALLOWED_EVENT_GROUPS
         ): cv.ensure_list,
-        vol.Optional(CONF_FORCED_COVERS, default=DEFAULT_FORCED_COVERS): cv.ensure_list,
+        vol.Required(CONF_FORCED_COVERS, default=DEFAULT_FORCED_COVERS): cv.ensure_list,
     }
 )
 
