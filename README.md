@@ -91,3 +91,18 @@ Result:
 - name_template = "{{ device.location }} - {{ device.name }}": Home Assistant entity will be called "Living Room - Lamp"
 - name_template = "HomeSeer - {{ device.name }}": Home Assistant entity will be called "HomeSeer - Lamp"
 
+## Services
+
+The integration exposes the following services:
+- homeseer.control_device_by_value
+
+### homeseer.control_device_by_value
+
+Allows the user to set any value on a HomeSeer device.  
+
+|Parameter|Description|Format|Required?|
+|---------|-----------|------|---------|
+|ref|Ref corresponding to the HomeSeer device |Integer|True|
+|value|Value to set the device to (integer) |Integer|True|
+
+
