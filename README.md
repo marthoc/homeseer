@@ -55,6 +55,7 @@ homeseer:
   name_template: '{{ device.name }}'
   allow_events: True
   forced_covers: [ 10, 20, 30 ]
+  allowed_event_groups: [ "Light Events", "Lock Events" ]
 ```
 |Parameter|Description|Required/Optional|
 |---------|-----------|-----------------|
@@ -67,6 +68,7 @@ homeseer:
 |name_template|Jinja2 template for naming devices|Optional, default "{{ device.location2 }} {{ device.location }} {{ device.name }}"|
 |allow_events|Create Home Assistant scenes for HomeSeer events|Optional, default True|
 |forced_covers|List of refs of Z-Wave Switch Multilevels that should be represented in HA as covers|Optional, default all ZWSM to lights|
+|allowed_event_groups|List of names of HomeSeer event groups to import; all other groups will be ignored|Optional, default all groups imported|
 
 ### Namespace
 
