@@ -65,7 +65,7 @@ CONFIG_SCHEMA = vol.Schema(
                 ): cv.ensure_list,
                 vol.Optional(
                     CONF_FORCED_COVERS, default=DEFAULT_FORCED_COVERS
-                ): cv.ensure_list
+                ): cv.ensure_list,
             }
         )
     },
@@ -123,7 +123,10 @@ async def async_setup(hass, config):
                 hass,
                 platform,
                 DOMAIN,
-                {CONF_ALLOWED_EVENT_GROUPS: allowed_event_groups, CONF_FORCED_COVERS: forced_covers},
+                {
+                    CONF_ALLOWED_EVENT_GROUPS: allowed_event_groups,
+                    CONF_FORCED_COVERS: forced_covers,
+                },
                 config,
             )
         )
