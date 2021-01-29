@@ -25,12 +25,14 @@ from .const import (
     CONF_ALLOWED_EVENT_GROUPS,
     CONF_ALLOW_EVENTS,
     CONF_ASCII_PORT,
+    CONF_FORCED_COVERS,
     CONF_HTTP_PORT,
     CONF_NAME_TEMPLATE,
     CONF_NAMESPACE,
     DEFAULT_ALLOWED_EVENT_GROUPS,
     DEFAULT_ALLOW_EVENTS,
     DEFAULT_ASCII_PORT,
+    DEFAULT_FORCED_COVERS,
     DEFAULT_HTTP_PORT,
     DEFAULT_PASSWORD,
     DEFAULT_USERNAME,
@@ -61,6 +63,9 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(
                     CONF_ALLOWED_EVENT_GROUPS, default=DEFAULT_ALLOWED_EVENT_GROUPS
                 ): cv.ensure_list,
+                vol.Optional(
+                    CONF_FORCED_COVERS, default=DEFAULT_FORCED_COVERS
+                ): cv.ensure_list
             }
         )
     },
@@ -80,6 +85,7 @@ async def async_setup(hass, config):
     name_template = config[CONF_NAME_TEMPLATE]
     allow_events = config[CONF_ALLOW_EVENTS]
     allowed_event_groups = config[CONF_ALLOWED_EVENT_GROUPS]
+    forced_covers = config[CONF_FORCED_COVERS]
 
     name_template.hass = hass
 
@@ -117,7 +123,7 @@ async def async_setup(hass, config):
                 hass,
                 platform,
                 DOMAIN,
-                {CONF_ALLOWED_EVENT_GROUPS: allowed_event_groups},
+                {CONF_ALLOWED_EVENT_GROUPS: allowed_event_groups, CONF_FORCED_COVERS: forced_covers},
                 config,
             )
         )
