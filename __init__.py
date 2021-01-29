@@ -18,7 +18,7 @@ from homeassistant.const import (
     CONF_USERNAME,
 )
 from homeassistant.core import EventOrigin
-from homeassistant.helpers import aiohttp_client, discovery
+from homeassistant.helpers import aiohttp_client
 
 from .const import (
     _LOGGER,
@@ -31,44 +31,8 @@ from .const import (
     CONF_HTTP_PORT,
     CONF_NAME_TEMPLATE,
     CONF_NAMESPACE,
-    DEFAULT_ALLOWED_EVENT_GROUPS,
-    DEFAULT_ALLOW_EVENTS,
-    DEFAULT_ASCII_PORT,
-    DEFAULT_FORCED_COVERS,
-    DEFAULT_HTTP_PORT,
-    DEFAULT_PASSWORD,
-    DEFAULT_USERNAME,
-    DEFAULT_NAME_TEMPLATE,
     DOMAIN,
     HOMESEER_PLATFORMS,
-)
-
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_HOST): cv.string,
-                vol.Required(CONF_NAMESPACE): cv.string,
-                vol.Optional(CONF_PASSWORD, default=DEFAULT_PASSWORD): cv.string,
-                vol.Optional(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
-                vol.Optional(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
-                vol.Optional(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
-                vol.Optional(
-                    CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE
-                ): cv.template,
-                vol.Optional(
-                    CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS
-                ): cv.boolean,
-                vol.Optional(
-                    CONF_ALLOWED_EVENT_GROUPS, default=DEFAULT_ALLOWED_EVENT_GROUPS
-                ): cv.ensure_list,
-                vol.Optional(
-                    CONF_FORCED_COVERS, default=DEFAULT_FORCED_COVERS
-                ): cv.ensure_list,
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
 )
 
 SERVICE_CONTROL_DEVICE_BY_VALUE = "control_device_by_value"
@@ -82,8 +46,16 @@ SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA = vol.Schema(
 
 
 async def async_setup(hass, config):
-    """Set up the HomeSeer component."""
-    config = config.get(DOMAIN)
+    """HomeSeer is configured via config entry."""
+
+    return True
+
+
+async def async_setup_entry(hass, config_entry):
+    """Set up a HomeSeer config entry."""
+
+    config = config_entry.data
+
     host = config[CONF_HOST]
     namespace = config[CONF_NAMESPACE]
     username = config[CONF_USERNAME]
@@ -98,7 +70,7 @@ async def async_setup(hass, config):
     name_template.hass = hass
 
     homeseer = HSConnection(
-        hass, host, username, password, http_port, ascii_port, namespace, name_template
+        hass, host, username, password, http_port, ascii_port, namespace, name_template, allowed_event_groups, forced_covers
     )
 
     await homeseer.api.initialize()
@@ -125,21 +97,12 @@ async def async_setup(hass, config):
     if not allow_events and len(allowed_event_groups) == 0:
         HOMESEER_PLATFORMS.remove("scene")
 
+    hass.data[DOMAIN] = homeseer
+
     for platform in HOMESEER_PLATFORMS:
         hass.async_create_task(
-            discovery.async_load_platform(
-                hass,
-                platform,
-                DOMAIN,
-                {
-                    CONF_ALLOWED_EVENT_GROUPS: allowed_event_groups,
-                    CONF_FORCED_COVERS: forced_covers,
-                },
-                config,
-            )
+            hass.config_entries.async_forward_entry_setup(config_entry, platform)
         )
-
-    hass.data[DOMAIN] = homeseer
 
     hass.bus.async_listen_once("homeassistant_stop", homeseer.stop)
 
@@ -172,6 +135,8 @@ class HSConnection:
         ascii_port,
         namespace,
         name_template,
+        allowed_event_groups,
+        forced_covers
     ):
         self._hass = hass
         self._session = aiohttp_client.async_get_clientsession(self._hass)
@@ -185,6 +150,8 @@ class HSConnection:
         )
         self._namespace = namespace
         self._name_template = name_template
+        self._allowed_event_groups = allowed_event_groups
+        self._forced_covers = forced_covers
         self.remotes = []
 
     @property
@@ -202,6 +169,14 @@ class HSConnection:
     @property
     def name_template(self):
         return self._name_template
+
+    @property
+    def allowed_event_groups(self):
+        return self._allowed_event_groups
+
+    @property
+    def forced_covers(self):
+        return self._forced_covers
 
     async def start(self):
         await self.api.start_listener()

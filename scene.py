@@ -9,14 +9,13 @@ from .const import _LOGGER, CONF_ALLOWED_EVENT_GROUPS, DOMAIN
 DEPENDENCIES = ["homeseer"]
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer events as Home Assistant scenes."""
     scenes = []
-    allowed_event_groups = discovery_info[CONF_ALLOWED_EVENT_GROUPS]
     homeseer = hass.data[DOMAIN]
 
     for event in homeseer.events:
-        if len(allowed_event_groups) > 0 and event.group not in allowed_event_groups:
+        if len(homeseer.allowed_event_groups) > 0 and event.group not in homeseer.allowed_event_groups:
             continue
         dev = HSScene(event)
         scenes.append(dev)

@@ -1,0 +1,25 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HomeSeer",
+        "description": "See https://github.com/marthoc/homeseer for more information on configuring this integration.",
+        "data": {
+          "host": "Host IP",
+          "namespace": "Namespace of this HomeSeer instance",
+          "username": "Username",
+          "password": "Password",
+          "http_port": "HTTP Port",
+          "ascii_port": "ASCII Port",
+          "name_template": "Entity Name Template",
+          "allow_events": "Create HA Scenes from HS Events?",
+          "allowed_event_groups": "Event groups to allow in HA",
+          "forced_covers": "Z-Wave Multilevel refs to expose as HA covers"
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "[%key:common::config_flow::abort::single_instance_allowed%]"
+    }
+  }
+}

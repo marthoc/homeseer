@@ -11,7 +11,7 @@ from .const import _LOGGER, DOMAIN
 DEPENDENCIES = ["homeseer"]
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer binary-type devices."""
     binary_sensor_devices = []
     homeseer = hass.data[DOMAIN]

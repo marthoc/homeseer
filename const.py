@@ -11,9 +11,6 @@ DOMAIN = "homeseer"
 ATTR_REF = "ref"
 ATTR_VALUE = "value"
 
-ATTR_REF = "ref"
-ATTR_VALUE = "value"
-
 CONF_HTTP_PORT = "http_port"
 CONF_ASCII_PORT = "ascii_port"
 CONF_ALLOW_EVENTS = "allow_events"
@@ -27,6 +24,7 @@ DEFAULT_PASSWORD = "default"
 DEFAULT_USERNAME = "default"
 DEFAULT_ASCII_PORT = 11000
 DEFAULT_NAME_TEMPLATE = "{{ device.location2 }} {{ device.location }} {{ device.name }}"
+DEFAULT_NAMESPACE = "homeseer"
 DEFAULT_ALLOW_EVENTS = True
 DEFAULT_ALLOWED_EVENT_GROUPS = []
 DEFAULT_FORCED_COVERS = []
