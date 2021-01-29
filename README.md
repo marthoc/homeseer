@@ -7,6 +7,7 @@ Z-Wave devices of the following types should create entities in Home Assistant:
 - Z-Wave Battery (as Home Assistant sensor)
 - Z-Wave Door Lock (as Home Assistant lock)
 - Z-Wave Sensor Binary (as Home Assistant binary sensor)
+- Z-Wave Sensor Multilevel (as Home Assistant sensor) 
 - Z-Wave Switch (as Home Assistant switch)
 - Z-Wave Switch Binary (as Home Assistant switch)
 - Z-Wave Switch Multilevel (as Home Assistant light or cover)
