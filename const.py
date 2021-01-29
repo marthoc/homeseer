@@ -8,7 +8,8 @@ _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "homeseer"
 
-UNIT_PERCENTAGE = "%"
+ATTR_REF = "ref"
+ATTR_VALUE = "value"
 
 ATTR_REF = "ref"
 ATTR_VALUE = "value"
