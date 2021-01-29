@@ -3,7 +3,6 @@
   "name": "HomeSeer",
   "config_flow": true,
   "documentation": "https://github.com/marthoc/homeseer",
-  "dependencies": [],
   "codeowners": ["@marthoc"],
   "requirements": ["pyhs3==0.14"]
 }
