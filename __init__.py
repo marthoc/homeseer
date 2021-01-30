@@ -18,7 +18,7 @@ from homeassistant.const import (
     CONF_USERNAME,
 )
 from homeassistant.core import EventOrigin
-from homeassistant.helpers import aiohttp_client
+from homeassistant.helpers import aiohttp_client, template
 
 from .const import (
     _LOGGER,
@@ -62,7 +62,7 @@ async def async_setup_entry(hass, config_entry):
     password = config[CONF_PASSWORD]
     http_port = config[CONF_HTTP_PORT]
     ascii_port = config[CONF_ASCII_PORT]
-    name_template = cv.template(str([CONF_NAME_TEMPLATE]))
+    name_template = template.Template(str([CONF_NAME_TEMPLATE]))
     allow_events = config[CONF_ALLOW_EVENTS]
     allowed_event_groups = config[CONF_ALLOWED_EVENT_GROUPS]
     forced_covers = config[CONF_FORCED_COVERS]

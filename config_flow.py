@@ -143,7 +143,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="multilevels",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_FORCED_COVERS): cv.multi_select(
+                    vol.Optional(CONF_FORCED_COVERS): cv.multi_select(
                         self._switch_multilevels
                     )
                 }
@@ -161,7 +161,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="groups",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_ALLOWED_EVENT_GROUPS): cv.multi_select(
+                    vol.Optional(CONF_ALLOWED_EVENT_GROUPS): cv.multi_select(
                         self._event_groups
                     )
                 }
