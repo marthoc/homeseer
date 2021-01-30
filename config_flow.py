@@ -100,7 +100,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._http_port = user_input[CONF_HTTP_PORT]
                 self._ascii_port = user_input[CONF_ASCII_PORT]
 
-                for device in self._homeseer.devices:
+                for device in self._homeseer.devices.values():
                     if device.device_type_string == DEVICE_ZWAVE_SWITCH_MULTILEVEL:
                         self._switch_multilevels.append(f"{device.ref} - {device.name}")
                 for event in self._homeseer.events:
