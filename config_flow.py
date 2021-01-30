@@ -40,10 +40,8 @@ ENTRY_SCHEMA = vol.Schema(
         vol.Required(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): int,
         vol.Required(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE): str,
         vol.Required(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): bool,
-        vol.Required(
-            CONF_ALLOWED_EVENT_GROUPS, default=DEFAULT_ALLOWED_EVENT_GROUPS
-        ): list,
-        vol.Required(CONF_FORCED_COVERS, default=DEFAULT_FORCED_COVERS): list,
+        vol.Optional(CONF_ALLOWED_EVENT_GROUPS): list,
+        vol.Optional(CONF_FORCED_COVERS): list,
     }
 )
 
