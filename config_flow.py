@@ -1,7 +1,6 @@
 import logging
 import voluptuous as vol
 
-import homeassistant.helpers.config_validation as cv
 from homeassistant import config_entries
 from homeassistant.const import (
     CONF_HOST,
@@ -33,18 +32,18 @@ _LOGGER = logging.getLogger(__name__)
 
 ENTRY_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST): cv.string,
-        vol.Required(CONF_NAMESPACE, default=DEFAULT_NAMESPACE): cv.string,
-        vol.Required(CONF_PASSWORD, default=DEFAULT_PASSWORD): cv.string,
-        vol.Required(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
-        vol.Required(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
-        vol.Required(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
-        vol.Required(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE): cv.template,
-        vol.Required(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): cv.boolean,
+        vol.Required(CONF_HOST): str,
+        vol.Required(CONF_NAMESPACE, default=DEFAULT_NAMESPACE): str,
+        vol.Required(CONF_PASSWORD, default=DEFAULT_PASSWORD): str,
+        vol.Required(CONF_USERNAME, default=DEFAULT_USERNAME): str,
+        vol.Required(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): int,
+        vol.Required(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): int,
+        vol.Required(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE): str,
+        vol.Required(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): bool,
         vol.Required(
             CONF_ALLOWED_EVENT_GROUPS, default=DEFAULT_ALLOWED_EVENT_GROUPS
-        ): cv.ensure_list,
-        vol.Required(CONF_FORCED_COVERS, default=DEFAULT_FORCED_COVERS): cv.ensure_list,
+        ): list,
+        vol.Required(CONF_FORCED_COVERS, default=DEFAULT_FORCED_COVERS): list,
     }
 )
 
