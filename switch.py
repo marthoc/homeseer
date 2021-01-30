@@ -55,7 +55,7 @@ class HSSwitch(SwitchEntity):
     @property
     def name(self):
         """Return the name of the device."""
-        return self._rendered_name
+        return self._connection.name_template.async_render(device=self._device)
 
     @property
     def should_poll(self):
@@ -75,5 +75,4 @@ class HSSwitch(SwitchEntity):
 
     async def async_added_to_hass(self):
         """Register value update callback."""
-        self._rendered_name = await self._connection.name_template.async_render(device=self._device)
         self._device.register_update_callback(self.async_schedule_update_ha_state)
