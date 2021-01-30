@@ -15,6 +15,7 @@
       },
       "config": {
         "title": "HomeSeer Initial Configuration Options",
+        "description": "Namespace is a unique string identifying this HomeSeer instance. Name Template defines how new entities are initially named in Home Assistant.",
         "data": {
           "namespace": "Namespace of this HomeSeer instance",
           "name_template": "Entity name template (Jinja2)",

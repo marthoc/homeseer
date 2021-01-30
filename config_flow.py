@@ -67,7 +67,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._namespace = None
         self._name_template = None
         self._allow_events = None
-        self._switch_multilevels = []
+        self._switch_multilevels = {}
         self._event_groups = []
         self._forced_covers = []
         self._allowed_groups = []
@@ -98,7 +98,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 for device in self._homeseer.devices.values():
                     if device.device_type_string == DEVICE_ZWAVE_SWITCH_MULTILEVEL:
-                        self._switch_multilevels.append(f"{device.ref} - {device.name}")
+                        self._switch_multilevels[device.ref] = device.name
                 for event in self._homeseer.events:
                     if event.group not in self._event_groups:
                         self._event_groups.append(event.group)
@@ -122,7 +122,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     return await self.async_step_multilevels()
                 if len(self._event_groups) > 0 and self._allow_events:
                     return await self.async_step_groups()
-                return self.finalize_entry_flow()
+                return self.finalize_config_entry_flow()
             except(vol.Invalid, TemplateError):
                 errors["base"] = "template_failed"
 
@@ -131,11 +131,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_multilevels(self, user_input=None):
 
         if user_input is not None:
-            self._forced_covers = user_input[CONF_FORCED_COVERS]
+            if user_input.get(CONF_FORCED_COVERS) is not None:
+                for key in user_input[CONF_FORCED_COVERS].keys():
+                    self._forced_covers.append(key)
 
             if len(self._event_groups) > 0 and self._allow_events:
                 return await self.async_step_groups()
-            return self.finalize_entry_flow()
+            return self.finalize_config_entry_flow()
 
         return self.async_show_form(
             step_id="multilevels",
@@ -151,9 +153,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_groups(self, user_input=None):
 
         if user_input is not None:
-            self._allowed_groups = user_input[CONF_ALLOWED_EVENT_GROUPS]
+            if user_input.get(CONF_ALLOWED_EVENT_GROUPS) is not None:
+                self._allowed_groups = user_input[CONF_ALLOWED_EVENT_GROUPS]
 
-            return self.finalize_entry_flow()
+            return self.finalize_config_entry_flow()
 
         return self.async_show_form(
             step_id="groups",
@@ -166,7 +169,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
         )
 
-    def finalize_entry_flow(self):
+    def finalize_config_entry_flow(self):
         return self.async_create_entry(
             title=self._host,
             data={
