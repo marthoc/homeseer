@@ -16,7 +16,7 @@
         "title": "HomeSeer Configuration Options",
         "data": {
           "namespace": "Namespace of this HomeSeer instance",
-          "name_template": "Entity Name Template",
+          "name_template": "Entity Name Template (Jinja2)",
           "allow_events": "Create HA Scenes from HS Events?"
         }
       },
@@ -34,7 +34,8 @@
     }
     },
     "error": {
-      "initialize_failed": "Cannot connect to HomeSeer or no devices or groups supported by Home Assistant"
+      "initialize_failed": "Cannot connect to HomeSeer or no devices or groups supported by Home Assistant",
+      "template_failed": "The provided Entity Name Template is not a valid template"
     },
     "abort": {
       "single_instance_allowed": "[%key:common::config_flow::abort::single_instance_allowed%]"

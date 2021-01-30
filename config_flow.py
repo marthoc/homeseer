@@ -120,14 +120,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._allow_events = user_input[CONF_ALLOW_EVENTS]
 
             try:
-                self._name_template = cv.template(str(user_input[CONF_NAME_TEMPLATE]))
+                cv.template(str(user_input[CONF_NAME_TEMPLATE]))
+                self._name_template = user_input[CONF_NAME_TEMPLATE]
                 if len(self._switch_multilevels) > 0:
                     return await self.async_step_multilevels()
                 if len(self._event_groups) > 0 and self._allow_events:
                     return await self.async_step_groups()
                 return self.finalize_entry_flow()
             except(vol.Invalid, TemplateError):
-                errors["base"] = "template_error"
+                errors["base"] = "template_failed"
 
         return self.async_show_form(step_id="config", data_schema=CONFIG_STEP_SCHEMA, errors=errors)
 
