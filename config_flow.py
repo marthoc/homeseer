@@ -8,6 +8,7 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_USERNAME,
 )
+from homeassistant.exceptions import TemplateError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
 
@@ -113,19 +114,22 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_config(self, user_input=None):
-
+        errors = {}
         if user_input is not None:
             self._namespace = user_input[CONF_NAMESPACE]
-            self._name_template = user_input[CONF_NAME_TEMPLATE]
             self._allow_events = user_input[CONF_ALLOW_EVENTS]
 
-            if len(self._switch_multilevels) > 0:
-                return await self.async_step_multilevels()
-            if len(self._event_groups) > 0 and self._allow_events:
-                return await self.async_step_groups()
-            return self.finalize_entry_flow()
+            try:
+                self._name_template = cv.template(str(user_input[CONF_NAME_TEMPLATE]))
+                if len(self._switch_multilevels) > 0:
+                    return await self.async_step_multilevels()
+                if len(self._event_groups) > 0 and self._allow_events:
+                    return await self.async_step_groups()
+                return self.finalize_entry_flow()
+            except(vol.Invalid, TemplateError):
+                errors["base"] = "template_error"
 
-        return self.async_show_form(step_id="config", data_schema=CONFIG_STEP_SCHEMA)
+        return self.async_show_form(step_id="config", data_schema=CONFIG_STEP_SCHEMA, errors=errors)
 
     async def async_step_multilevels(self, user_input=None):
 
