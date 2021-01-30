@@ -89,10 +89,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input[CONF_HTTP_PORT],
                 user_input[CONF_ASCII_PORT],
             )
-            try:
-                await self._homeseer.initialize()
-            except:
-                errors["base"] = "initialize_failed"
+            await self._homeseer.initialize()
 
             if len(self._homeseer.devices) > 0 or len(self._homeseer.events) > 0:
                 self._host = user_input[CONF_HOST]
@@ -108,6 +105,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     if event.group not in self._event_groups:
                         self._event_groups.append(event.group)
                 return await self.async_step_config()
+            errors["base"] = "initialize_failed"
 
         return self.async_show_form(
             step_id="user", data_schema=USER_STEP_SCHEMA, errors=errors
