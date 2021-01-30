@@ -46,7 +46,7 @@ USER_STEP_SCHEMA = vol.Schema(
 CONFIG_STEP_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAMESPACE, default=DEFAULT_NAMESPACE): cv.string,
-        vol.Required(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE): cv.string,
+        vol.Required(CONF_NAME_TEMPLATE, default=DEFAULT_NAME_TEMPLATE): cv.template,
         vol.Required(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): cv.boolean,
     }
 )
