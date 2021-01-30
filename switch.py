@@ -54,7 +54,7 @@ class HSSwitch(SwitchEntity):
     @property
     def name(self):
         """Return the name of the device."""
-        rendered = self._connection.name_template.async_render(device=self._device)
+        rendered = await self._connection.name_template.async_render(device=self._device)
         print(rendered)
         return rendered
 
