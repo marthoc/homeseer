@@ -132,8 +132,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             if user_input.get(CONF_FORCED_COVERS) is not None:
-                for key in user_input[CONF_FORCED_COVERS].keys():
-                    self._forced_covers.append(key)
+                self._forced_covers = user_input[CONF_FORCED_COVERS]
 
             if len(self._event_groups) > 0 and self._allow_events:
                 return await self.async_step_groups()
