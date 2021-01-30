@@ -208,3 +208,17 @@ class HSRemote:
         """Fire the event."""
         data = {CONF_ID: self._device.ref, CONF_EVENT: self._device.value}
         self._hass.bus.async_fire(self._event, data, EventOrigin.remote)
+
+
+async def async_unload_entry(hass, config_entry):
+    """Unload the config entry and platforms."""
+    homeseer = hass.data.pop(DOMAIN)
+    await homeseer.stop()
+
+    tasks = []
+    for platform in HOMESEER_PLATFORMS:
+        tasks.append(
+            hass.config_entries.async_forward_entry_unload(config_entry, platform)
+        )
+
+    return all(await asyncio.gather(*tasks))
