@@ -46,7 +46,9 @@ SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA = vol.Schema(
 
 
 async def async_setup(hass, config):
-    """HomeSeer is configured via config entry."""
+    """
+    HomeSeer is configured via config entry.
+    """
 
     return True
 
@@ -70,7 +72,16 @@ async def async_setup_entry(hass, config_entry):
     name_template.hass = hass
 
     homeseer = HSConnection(
-        hass, host, username, password, http_port, ascii_port, namespace, name_template, allowed_event_groups, forced_covers
+        hass,
+        host,
+        username,
+        password,
+        http_port,
+        ascii_port,
+        namespace,
+        name_template,
+        allowed_event_groups,
+        forced_covers,
     )
 
     await homeseer.api.initialize()
@@ -136,7 +147,7 @@ class HSConnection:
         namespace,
         name_template,
         allowed_event_groups,
-        forced_covers
+        forced_covers,
     ):
         self._hass = hass
         self._session = aiohttp_client.async_get_clientsession(self._hass)

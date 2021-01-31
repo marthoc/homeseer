@@ -58,7 +58,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
 
     def __init__(self):
-        self._homeseer = None
         self._host = None
         self._username = None
         self._password = None
@@ -79,7 +78,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="single_instance_allowed")
 
         if user_input is not None:
-            self._homeseer = HomeTroller(
+            homeseer = HomeTroller(
                 user_input[CONF_HOST],
                 async_get_clientsession(self.hass),
                 user_input[CONF_USERNAME],
@@ -87,19 +86,19 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input[CONF_HTTP_PORT],
                 user_input[CONF_ASCII_PORT],
             )
-            await self._homeseer.initialize()
+            await homeseer.initialize()
 
-            if len(self._homeseer.devices) > 0 or len(self._homeseer.events) > 0:
+            if len(homeseer.devices) > 0 or len(homeseer.events) > 0:
                 self._host = user_input[CONF_HOST]
                 self._username = user_input[CONF_USERNAME]
                 self._password = user_input[CONF_PASSWORD]
                 self._http_port = user_input[CONF_HTTP_PORT]
                 self._ascii_port = user_input[CONF_ASCII_PORT]
 
-                for device in self._homeseer.devices.values():
+                for device in homeseer.devices.values():
                     if device.device_type_string == DEVICE_ZWAVE_SWITCH_MULTILEVEL:
                         self._switch_multilevels.append(int(device.ref))
-                for event in self._homeseer.events:
+                for event in homeseer.events:
                     if event.group not in self._event_groups:
                         self._event_groups.append(event.group)
                 return await self.async_step_config()

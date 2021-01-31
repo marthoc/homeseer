@@ -24,14 +24,14 @@
       },
       "multilevels": {
         "title": "Z-Wave Switch Multilevels to represent as Covers",
-        "description": "Select which ZWSMs (i.e. blinds) to represent as Covers.",
+        "description": "Some blinds or window coverings are defined in HomeSeer the same way as lights. Select which of these device refs should actually be represented as Covers in Home Assistant.",
         "data": {
           "forced_covers": "Select Z-Wave Switch Multilevels"
         }
       },
       "groups": {
         "title": "Filter HomeSeer Event Groups",
-        "description": "Select which HomeSeer event groups will be allowed in Home Assistant; selecting no groups here will allow ALL event groups.",
+        "description": "Select which HomeSeer event groups will be allowed in Home Assistant. Selecting any groups here will allow ONLY those groups; selecting no groups here will allow ALL event groups.",
         "data": {
           "allowed_event_groups": "Select HomeSeer event groups"
         }

@@ -7,6 +7,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "homeseer"
+HOMESEER_CONFIG = "homeseer_config"
 
 ATTR_REF = "ref"
 ATTR_VALUE = "value"
