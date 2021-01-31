@@ -1,8 +1,10 @@
 {
   "domain": "homeseer",
   "name": "HomeSeer",
+  "config_flow": true,
   "documentation": "https://github.com/marthoc/homeseer",
-  "dependencies": [],
+  "issue_tracker": "https://github.com/marthoc/homeseer/issues",
   "codeowners": ["@marthoc"],
-  "requirements": ["pyhs3==0.14"]
+  "requirements": ["pyhs3==0.14"],
+  "version": "1.0.0"
 }

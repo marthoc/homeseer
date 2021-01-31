@@ -11,14 +11,13 @@ from .const import _LOGGER, DOMAIN, CONF_FORCED_COVERS
 DEPENDENCIES = ["homeseer"]
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer light-type devices."""
     light_devices = []
-    forced_covers = discovery_info[CONF_FORCED_COVERS]
     homeseer = hass.data[DOMAIN]
 
     for device in homeseer.devices:
-        if device.device_type_string in HASS_LIGHTS and int(device.ref) not in forced_covers:
+        if device.device_type_string in HASS_LIGHTS and int(device.ref) not in homeseer.forced_covers:
             dev = HSLight(device, homeseer)
             light_devices.append(dev)
             _LOGGER.info(f"Added HomeSeer light-type device: {dev.name}")
@@ -55,7 +54,7 @@ class HSLight(LightEntity):
     @property
     def name(self):
         """Return the name of the device."""
-        return self._connection.name_template.async_render(device=self._device).strip()
+        return self._connection.name_template.async_render(device=self._device)
 
     @property
     def should_poll(self):

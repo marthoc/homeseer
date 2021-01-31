@@ -11,7 +11,7 @@ from .const import _LOGGER, DOMAIN
 DEPENDENCIES = ["homeseer"]
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer switch-type devices."""
     switch_devices = []
     homeseer = hass.data[DOMAIN]
@@ -31,6 +31,7 @@ class HSSwitch(SwitchEntity):
     def __init__(self, device, connection):
         self._device = device
         self._connection = connection
+        self._rendered_name = None
 
     @property
     def available(self):
@@ -54,7 +55,7 @@ class HSSwitch(SwitchEntity):
     @property
     def name(self):
         """Return the name of the device."""
-        return self._connection.name_template.async_render(device=self._device).strip()
+        return self._connection.name_template.async_render(device=self._device)
 
     @property
     def should_poll(self):

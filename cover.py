@@ -19,15 +19,14 @@ from homeassistant.components.cover import (
 )
 from homeassistant.const import STATE_CLOSED, STATE_CLOSING, STATE_OPENING
 
-from .const import _LOGGER, DOMAIN, CONF_FORCED_COVERS
+from .const import _LOGGER, DOMAIN
 
 DEPENDENCIES = ["homeseer"]
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer cover-type devices."""
     cover_devices = []
-    forced_covers = discovery_info[CONF_FORCED_COVERS]
     homeseer = hass.data[DOMAIN]
 
     for device in homeseer.devices:
@@ -36,7 +35,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             dev = HSGarage(device, homeseer)
             cover_devices.append(dev)
             _LOGGER.info(f"Added HomeSeer garage-type device: {dev.name}")
-        elif device.device_type_string == DEVICE_ZWAVE_SWITCH_MULTILEVEL and int(device.ref) in forced_covers:
+        elif device.device_type_string == DEVICE_ZWAVE_SWITCH_MULTILEVEL and int(device.ref) in homeseer.forced_covers:
             """Device is a blind."""
             dev = HSBlind(device, homeseer)
             cover_devices.append(dev)
@@ -74,7 +73,7 @@ class HSCover(CoverEntity):
     @property
     def name(self):
         """Return the name of the device."""
-        return self._connection.name_template.async_render(device=self._device).strip()
+        return self._connection.name_template.async_render(device=self._device)
 
     @property
     def should_poll(self):

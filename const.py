@@ -7,9 +7,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "homeseer"
-
-ATTR_REF = "ref"
-ATTR_VALUE = "value"
+HOMESEER_CONFIG = "homeseer_config"
 
 ATTR_REF = "ref"
 ATTR_VALUE = "value"
@@ -27,6 +25,7 @@ DEFAULT_PASSWORD = "default"
 DEFAULT_USERNAME = "default"
 DEFAULT_ASCII_PORT = 11000
 DEFAULT_NAME_TEMPLATE = "{{ device.location2 }} {{ device.location }} {{ device.name }}"
+DEFAULT_NAMESPACE = "homeseer"
 DEFAULT_ALLOW_EVENTS = True
 DEFAULT_ALLOWED_EVENT_GROUPS = []
 DEFAULT_FORCED_COVERS = []
