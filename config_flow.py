@@ -37,8 +37,8 @@ USER_STEP_SCHEMA = vol.Schema(
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_USERNAME, default=DEFAULT_USERNAME): cv.string,
         vol.Required(CONF_PASSWORD, default=DEFAULT_PASSWORD): cv.string,
-        vol.Required(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.port,
-        vol.Required(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.port,
+        vol.Required(CONF_HTTP_PORT, default=DEFAULT_HTTP_PORT): cv.positive_int,
+        vol.Required(CONF_ASCII_PORT, default=DEFAULT_ASCII_PORT): cv.positive_int,
     }
 )
 
