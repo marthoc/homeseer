@@ -7,7 +7,7 @@ https://github.com/marthoc/homeseer
 import asyncio
 
 import voluptuous as vol
-from pyhs3 import HomeTroller, HASS_EVENTS, STATE_LISTENING
+from libhomeseer import HomeTroller, HASS_EVENTS, STATE_LISTENING
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.const import (

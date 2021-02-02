@@ -1,5 +1,5 @@
 import logging
-from pyhs3 import HomeTroller, DEVICE_ZWAVE_SWITCH_MULTILEVEL
+from libhomeseer import HomeTroller, DEVICE_ZWAVE_SWITCH_MULTILEVEL
 import voluptuous as vol
 
 from homeassistant import config_entries

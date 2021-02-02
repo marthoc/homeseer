@@ -2,7 +2,7 @@
 Support for HomeSeer binary-type devices.
 """
 
-from pyhs3 import HASS_BINARY_SENSORS, STATE_LISTENING
+from libhomeseer import HASS_BINARY_SENSORS, STATE_LISTENING
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
 

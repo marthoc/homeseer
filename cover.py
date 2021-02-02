@@ -2,7 +2,7 @@
 Support for HomeSeer cover-type devices.
 """
 
-from pyhs3 import (
+from libhomeseer import (
     STATE_LISTENING,
     DEVICE_ZWAVE_BARRIER_OPERATOR,
     DEVICE_ZWAVE_SWITCH_MULTILEVEL,

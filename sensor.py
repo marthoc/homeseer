@@ -2,7 +2,7 @@
 Support for HomeSeer sensor-type devices.
 """
 
-from pyhs3 import (
+from libhomeseer import (
     DEVICE_ZWAVE_BATTERY,
     DEVICE_ZWAVE_FAN_STATE,
     DEVICE_ZWAVE_LUMINANCE,

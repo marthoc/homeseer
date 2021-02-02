@@ -5,6 +5,6 @@
   "documentation": "https://github.com/marthoc/homeseer",
   "issue_tracker": "https://github.com/marthoc/homeseer/issues",
   "codeowners": ["@marthoc"],
-  "requirements": ["pyhs3==0.14"],
+  "requirements": ["libhomeseer=1.0.0"],
   "version": "1.0.0"
 }

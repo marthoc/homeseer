@@ -2,7 +2,7 @@
 Support for HomeSeer lock-type devices.
 """
 
-from pyhs3 import HASS_LOCKS, STATE_LISTENING
+from libhomeseer import HASS_LOCKS, STATE_LISTENING
 
 from homeassistant.components.lock import LockEntity
 

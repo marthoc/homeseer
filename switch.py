@@ -2,7 +2,7 @@
 Support for HomeSeer switch-type devices.
 """
 
-from pyhs3 import HASS_SWITCHES, STATE_LISTENING
+from libhomeseer import HASS_SWITCHES, STATE_LISTENING
 
 from homeassistant.components.switch import SwitchEntity
 
