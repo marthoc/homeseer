@@ -1,65 +1,46 @@
-"""
-Support for HomeSeer light-type devices.
-"""
+"""Support for HomeSeer light-type devices."""
+import logging
+from libhomeseer import DEVICE_ZWAVE_SWITCH_MULTILEVEL
 
-from libhomeseer import HASS_LIGHTS, STATE_LISTENING
+from homeassistant.components.light import (
+    ATTR_BRIGHTNESS,
+    SUPPORT_BRIGHTNESS,
+    LightEntity,
+)
 
-from homeassistant.components.light import ATTR_BRIGHTNESS, SUPPORT_BRIGHTNESS, LightEntity
+from .const import DOMAIN
+from .homeseer import HomeSeerEntity
 
-from .const import _LOGGER, DOMAIN, CONF_FORCED_COVERS
+_LOGGER = logging.getLogger(__name__)
 
-DEPENDENCIES = ["homeseer"]
+LIGHT_TYPES = [DEVICE_ZWAVE_SWITCH_MULTILEVEL]
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer light-type devices."""
-    light_devices = []
+    light_entities = []
     homeseer = hass.data[DOMAIN]
 
     for device in homeseer.devices:
-        if device.device_type_string in HASS_LIGHTS and int(device.ref) not in homeseer.forced_covers:
-            dev = HSLight(device, homeseer)
-            light_devices.append(dev)
-            _LOGGER.info(f"Added HomeSeer light-type device: {dev.name}")
+        if (
+            device.device_type_string in LIGHT_TYPES
+            and device.ref not in homeseer.forced_covers
+        ):
+            entity = HSLight(device, homeseer)
+            light_entities.append(entity)
+            _LOGGER.info(
+                f"Added HomeSeer light-type device: {entity.name} ({entity.device_state_attributes})"
+            )
 
-    async_add_entities(light_devices)
+    if light_entities:
+        async_add_entities(light_entities)
 
 
-class HSLight(LightEntity):
+class HSLight(HomeSeerEntity, LightEntity):
     """Representation of a HomeSeer light-type device."""
 
     def __init__(self, device, connection):
-        self._device = device
-        self._connection = connection
-
-    @property
-    def available(self):
-        """Return whether the device is available."""
-        return self._connection.api.state == STATE_LISTENING
-
-    @property
-    def device_state_attributes(self):
-        attr = {
-            "Device Ref": self._device.ref,
-            "Location": self._device.location,
-            "Location 2": self._device.location2,
-        }
-        return attr
-
-    @property
-    def unique_id(self):
-        """Return a unique ID for the device."""
-        return f"{self._connection.namespace}-{self._device.ref}"
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._connection.name_template.async_render(device=self._device)
-
-    @property
-    def should_poll(self):
-        """No polling needed."""
-        return False
+        HomeSeerEntity.__init__(self, device, connection)
 
     @property
     def supported_features(self):
@@ -88,7 +69,3 @@ class HSLight(LightEntity):
     async def async_turn_off(self, **kwargs):
         """Turn the light off."""
         await self._device.off()
-
-    async def async_added_to_hass(self):
-        """Register value update callback."""
-        self._device.register_update_callback(self.async_schedule_update_ha_state)

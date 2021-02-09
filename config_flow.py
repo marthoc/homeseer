@@ -1,5 +1,13 @@
+import asyncio
 import logging
-from libhomeseer import HomeTroller, DEVICE_ZWAVE_SWITCH_MULTILEVEL
+from libhomeseer import (
+    HomeSeer,
+    DEVICE_ZWAVE_SWITCH_MULTILEVEL,
+    DEFAULT_USERNAME,
+    DEFAULT_PASSWORD,
+    DEFAULT_HTTP_PORT,
+    DEFAULT_ASCII_PORT,
+)
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -21,16 +29,10 @@ from .const import (
     CONF_NAME_TEMPLATE,
     CONF_NAMESPACE,
     DEFAULT_ALLOW_EVENTS,
-    DEFAULT_ASCII_PORT,
-    DEFAULT_HTTP_PORT,
     DEFAULT_NAME_TEMPLATE,
     DEFAULT_NAMESPACE,
-    DEFAULT_PASSWORD,
-    DEFAULT_USERNAME,
     DOMAIN,
 )
-
-_LOGGER = logging.getLogger(__name__)
 
 USER_STEP_SCHEMA = vol.Schema(
     {
@@ -49,6 +51,8 @@ CONFIG_STEP_SCHEMA = vol.Schema(
         vol.Required(CONF_ALLOW_EVENTS, default=DEFAULT_ALLOW_EVENTS): cv.boolean,
     }
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -78,7 +82,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="single_instance_allowed")
 
         if user_input is not None:
-            homeseer = HomeTroller(
+            homeseer = HomeSeer(
                 user_input[CONF_HOST],
                 async_get_clientsession(self.hass),
                 user_input[CONF_USERNAME],
@@ -86,9 +90,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input[CONF_HTTP_PORT],
                 user_input[CONF_ASCII_PORT],
             )
-            await homeseer.initialize()
 
-            if len(homeseer.devices) > 0 or len(homeseer.events) > 0:
+            try:
+                await asyncio.wait_for(homeseer.initialize(), 5)
+            except asyncio.TimeoutError:
+                _LOGGER.error(f"Could not connect to HomeSeer at {self._host}")
+
+            if homeseer.devices or homeseer.events:
                 self._host = user_input[CONF_HOST]
                 self._username = user_input[CONF_USERNAME]
                 self._password = user_input[CONF_PASSWORD]
@@ -97,7 +105,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 for device in homeseer.devices.values():
                     if device.device_type_string == DEVICE_ZWAVE_SWITCH_MULTILEVEL:
-                        self._switch_multilevels.append(int(device.ref))
+                        self._switch_multilevels.append(device.ref)
                 for event in homeseer.events:
                     if event.group not in self._event_groups:
                         self._event_groups.append(event.group)
@@ -122,10 +130,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if len(self._event_groups) > 0 and self._allow_events:
                     return await self.async_step_groups()
                 return self.finalize_config_entry_flow()
-            except(vol.Invalid, TemplateError):
+            except (vol.Invalid, TemplateError):
                 errors["base"] = "template_failed"
 
-        return self.async_show_form(step_id="config", data_schema=CONFIG_STEP_SCHEMA, errors=errors)
+        return self.async_show_form(
+            step_id="config", data_schema=CONFIG_STEP_SCHEMA, errors=errors
+        )
 
     async def async_step_multilevels(self, user_input=None):
 

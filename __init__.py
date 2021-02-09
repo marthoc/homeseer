@@ -1,13 +1,12 @@
 """
-Custom component for interacting with a HomeSeer HomeTroller or HS3 software installation.
-
-For more details about this custom component, please refer to the documentation at
-https://github.com/marthoc/homeseer
+Custom integration for interacting with a HomeSeer software installation.
+For more details please refer to the documentation at https://github.com/marthoc/homeseer
 """
 import asyncio
+import logging
 
 import voluptuous as vol
-from libhomeseer import HomeTroller, HASS_EVENTS, STATE_LISTENING
+from libhomeseer import HomeSeer, DEVICE_ZWAVE_CENTRAL_SCENE
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.const import (
@@ -21,7 +20,6 @@ from homeassistant.core import EventOrigin
 from homeassistant.helpers import aiohttp_client, template
 
 from .const import (
-    _LOGGER,
     ATTR_REF,
     ATTR_VALUE,
     CONF_ALLOWED_EVENT_GROUPS,
@@ -35,6 +33,8 @@ from .const import (
     HOMESEER_PLATFORMS,
 )
 
+_LOGGER = logging.getLogger(__name__)
+
 SERVICE_CONTROL_DEVICE_BY_VALUE = "control_device_by_value"
 
 SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA = vol.Schema(
@@ -46,16 +46,12 @@ SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA = vol.Schema(
 
 
 async def async_setup(hass, config):
-    """
-    HomeSeer is configured via config entry.
-    """
-
+    """HomeSeer is configured via config entry."""
     return True
 
 
 async def async_setup_entry(hass, config_entry):
     """Set up a HomeSeer config entry."""
-
     config = config_entry.data
 
     host = config[CONF_HOST]
@@ -71,7 +67,7 @@ async def async_setup_entry(hass, config_entry):
 
     name_template.hass = hass
 
-    homeseer = HSConnection(
+    homeseer = HomeSeerConnection(
         hass,
         host,
         username,
@@ -84,38 +80,37 @@ async def async_setup_entry(hass, config_entry):
         forced_covers,
     )
 
-    await homeseer.api.initialize()
-    if len(homeseer.devices) == 0 and len(homeseer.events) == 0:
-        _LOGGER.error("No supported HomeSeer devices found, aborting component setup.")
+    try:
+        await asyncio.wait_for(homeseer.api.initialize(), 10)
+    except asyncio.TimeoutError:
+        _LOGGER.error(f"Could not connect to HomeSeer at {host}, aborting entry setup.")
         return False
 
-    await homeseer.start()
-    i = 0
-    while homeseer.api.state != STATE_LISTENING:
-        if i < 3:
-            i += 1
+    if not homeseer.devices and not homeseer.events:
+        _LOGGER.error(
+            f"No supported HomeSeer devices or events found, aborting entry setup for {host}."
+        )
+        return False
+
+    await homeseer.api.start_listener()
+    attempts = 0
+    while not homeseer.api.available:
+        if attempts < 5:
+            attempts += 1
             await asyncio.sleep(1)
-        elif i == 3:
-            _LOGGER.error(
-                "Failed to connect to HomeSeer ASCII server, aborting component setup."
-            )
-            await homeseer.stop()
-            return False
-    _LOGGER.info(f"Connected to HomeSeer ASCII server at {host}:{ascii_port}")
+            continue
+        _LOGGER.error(
+            f"Failed to connect to HomeSeer ASCII connection at {host}:{ascii_port}, aborting entry setup."
+        )
+        await homeseer.api.stop_listener()
+        return False
 
     homeseer.add_remotes()
 
     if not allow_events and len(allowed_event_groups) == 0:
         HOMESEER_PLATFORMS.remove("scene")
 
-    hass.data[DOMAIN] = homeseer
-
-    for platform in HOMESEER_PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(config_entry, platform)
-        )
-
-    hass.bus.async_listen_once("homeassistant_stop", homeseer.stop)
+    hass.bus.async_listen_once("homeassistant_stop", homeseer.api.stop_listener)
 
     async def control_device_by_value(call):
         ref = call.data[ATTR_REF]
@@ -130,10 +125,18 @@ async def async_setup_entry(hass, config_entry):
         schema=SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA,
     )
 
-    return True
+    hass.data[DOMAIN] = homeseer
+
+    tasks = []
+    for platform in HOMESEER_PLATFORMS:
+        tasks.append(
+            hass.config_entries.async_forward_entry_setup(config_entry, platform)
+        )
+
+    return all(await asyncio.gather(*tasks))
 
 
-class HSConnection:
+class HomeSeerConnection:
     """Manages a connection between HomeSeer and Home Assistant."""
 
     def __init__(
@@ -151,7 +154,7 @@ class HSConnection:
     ):
         self._hass = hass
         self._session = aiohttp_client.async_get_clientsession(self._hass)
-        self.api = HomeTroller(
+        self.api = HomeSeer(
             host,
             self._session,
             username=username,
@@ -189,29 +192,23 @@ class HSConnection:
     def forced_covers(self):
         return self._forced_covers
 
-    async def start(self):
-        await self.api.start_listener()
-
-    async def stop(self, *args):
-        await self.api.stop_listener()
-
     def add_remotes(self):
         for device in self.devices:
-            if device.device_type_string in HASS_EVENTS:
-                self.remotes.append(HSRemote(self._hass, device))
+            if device.device_type_string == DEVICE_ZWAVE_CENTRAL_SCENE:
+                self.remotes.append(HomeSeerRemote(self._hass, device))
                 _LOGGER.info(
                     f"Added HomeSeer remote-type device: {device.name} (Ref: {device.ref})"
                 )
 
 
-class HSRemote:
+class HomeSeerRemote:
     """Link remote-type devices that should fire events rather than create entities to Home Assistant."""
 
     def __init__(self, hass, device):
         self._hass = hass
         self._device = device
         self._device.register_update_callback(
-            self.update_callback, suppress_on_reconnect=True
+            self.update_callback, suppress_on_connection=True
         )
         self._event = f"homeseer_{CONF_EVENT}"
 

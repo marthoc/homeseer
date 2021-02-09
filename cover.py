@@ -1,9 +1,6 @@
-"""
-Support for HomeSeer cover-type devices.
-"""
-
+"""Support for HomeSeer cover-type devices."""
+import logging
 from libhomeseer import (
-    STATE_LISTENING,
     DEVICE_ZWAVE_BARRIER_OPERATOR,
     DEVICE_ZWAVE_SWITCH_MULTILEVEL,
 )
@@ -17,82 +14,58 @@ from homeassistant.components.cover import (
     SUPPORT_OPEN,
     SUPPORT_SET_POSITION,
 )
-from homeassistant.const import STATE_CLOSED, STATE_CLOSING, STATE_OPENING
 
-from .const import _LOGGER, DOMAIN
+from .const import DOMAIN
+from .homeseer import HomeSeerEntity
 
-DEPENDENCIES = ["homeseer"]
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer cover-type devices."""
-    cover_devices = []
+    cover_entities = []
     homeseer = hass.data[DOMAIN]
 
     for device in homeseer.devices:
         if device.device_type_string == DEVICE_ZWAVE_BARRIER_OPERATOR:
             """Device is a garage-door opener."""
-            dev = HSGarage(device, homeseer)
-            cover_devices.append(dev)
-            _LOGGER.info(f"Added HomeSeer garage-type device: {dev.name}")
-        elif device.device_type_string == DEVICE_ZWAVE_SWITCH_MULTILEVEL and int(device.ref) in homeseer.forced_covers:
+            entity = HomeSeerGarageDoor(device, homeseer)
+            cover_entities.append(entity)
+            _LOGGER.info(
+                f"Added HomeSeer garage-type device: {entity.name} ({entity.device_state_attributes})"
+            )
+        elif (
+            device.device_type_string == DEVICE_ZWAVE_SWITCH_MULTILEVEL
+            and device.ref in homeseer.forced_covers
+        ):
             """Device is a blind."""
-            dev = HSBlind(device, homeseer)
-            cover_devices.append(dev)
-            _LOGGER.info(f"Added HomeSeer blind-type device: {dev.name}")
+            entity = HomeSeerBlind(device, homeseer)
+            cover_entities.append(entity)
+            _LOGGER.info(
+                f"Added HomeSeer blind-type device: {entity.name} ({entity.device_state_attributes})"
+            )
 
-    async_add_entities(cover_devices)
-
-
-class HSCover(CoverEntity):
-    """Base representation of a HomeSeer cover-type device."""
-
-    def __init__(self, device, connection):
-        self._device = device
-        self._connection = connection
-
-    @property
-    def available(self):
-        """Return whether the device is available."""
-        return self._connection.api.state == STATE_LISTENING
-
-    @property
-    def device_state_attributes(self):
-        attr = {
-            "Device Ref": self._device.ref,
-            "Location": self._device.location,
-            "Location 2": self._device.location2,
-        }
-        return attr
-
-    @property
-    def unique_id(self):
-        """Return a unique ID for the device."""
-        return f"{self._connection.namespace}-{self._device.ref}"
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._connection.name_template.async_render(device=self._device)
-
-    @property
-    def should_poll(self):
-        """No polling needed."""
-        return False
-
-    async def async_added_to_hass(self):
-        """Register value update callback."""
-        self._device.register_update_callback(self.async_schedule_update_ha_state)
+    if cover_entities:
+        async_add_entities(cover_entities)
 
 
-class HSGarage(HSCover):
+class HomeSeerCover(HomeSeerEntity, CoverEntity):
+    """Base representation for a HomeSeer cover entity."""
+
+    async def async_open_cover(self, **kwargs):
+        await self._device.on()
+
+    async def async_close_cover(self, **kwargs):
+        await self._device.off()
+
+
+class HomeSeerGarageDoor(HomeSeerCover):
     """Representation of a garage door opener device."""
 
     @property
     def supported_features(self):
         """Return the features supported by the device."""
-        features = SUPPORT_OPEN | SUPPORT_CLOSE
-        return features
+        return SUPPORT_OPEN | SUPPORT_CLOSE
 
     @property
     def device_class(self):
@@ -102,26 +75,20 @@ class HSGarage(HSCover):
     @property
     def is_opening(self):
         """Return if the cover is opening or not."""
-        return self._device.current_state == STATE_OPENING
+        return self._device.status == "Opening"
 
     @property
     def is_closing(self):
         """Return if the cover is closing or not."""
-        return self._device.current_state == STATE_CLOSING
+        return self._device.status == "Closing"
 
     @property
     def is_closed(self):
         """Return if the cover is closed or not."""
-        return self._device.current_state == STATE_CLOSED
-
-    async def async_open_cover(self, **kwargs):
-        await self._device.open()
-
-    async def async_close_cover(self, **kwargs):
-        await self._device.close()
+        return self._device.status == "Closed"
 
 
-class HSBlind(HSCover):
+class HomeSeerBlind(HomeSeerCover):
     """Representation of a window-covering device."""
 
     @property
@@ -143,12 +110,6 @@ class HSBlind(HSCover):
     def is_closed(self):
         """Return if the cover is closed or not."""
         return not self._device.is_on
-
-    async def async_open_cover(self, **kwargs):
-        await self._device.on()
-
-    async def async_close_cover(self, **kwargs):
-        await self._device.off()
 
     async def async_set_cover_position(self, **kwargs):
         await self._device.dim(kwargs.get(ATTR_POSITION, 0))

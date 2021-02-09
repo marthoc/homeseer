@@ -1,12 +1,10 @@
-"""
-Support for HomeSeer Events.
-"""
-
+"""Support for HomeSeer Events."""
+import logging
 from homeassistant.components.scene import Scene
 
-from .const import _LOGGER, CONF_ALLOWED_EVENT_GROUPS, DOMAIN
+from .const import DOMAIN
 
-DEPENDENCIES = ["homeseer"]
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -15,16 +13,20 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     homeseer = hass.data[DOMAIN]
 
     for event in homeseer.events:
-        if len(homeseer.allowed_event_groups) > 0 and event.group not in homeseer.allowed_event_groups:
+        if (
+            len(homeseer.allowed_event_groups) > 0
+            and event.group not in homeseer.allowed_event_groups
+        ):
             continue
-        dev = HSScene(event)
-        scenes.append(dev)
-        _LOGGER.info(f"Added HomeSeer event: {dev.name}")
+        entity = HSScene(event)
+        scenes.append(entity)
+        _LOGGER.info(f"Added HomeSeer event: {entity.name}")
 
-    async_add_entities(scenes)
+    if scenes:
+        async_add_entities(scenes)
 
 
-class HSScene(Scene):
+class HomeSeer(Scene):
     """Representation of a HomeSeer event."""
 
     def __init__(self, event):
