@@ -4,6 +4,7 @@ For more details please refer to the documentation at https://github.com/marthoc
 """
 import asyncio
 import logging
+from typing import ValuesView
 
 import voluptuous as vol
 from libhomeseer import HomeSeer, DEVICE_ZWAVE_CENTRAL_SCENE
@@ -128,6 +129,8 @@ async def async_setup_entry(hass, config_entry):
         schema=SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA,
     )
 
+    return True
+
 
 class HomeSeerConnection:
     """Manages a connection between HomeSeer and Home Assistant."""
@@ -162,38 +165,38 @@ class HomeSeerConnection:
         self.remotes = []
 
     @property
-    def devices(self):
+    def devices(self) -> ValuesView:
         return self.api.devices.values()
 
     @property
-    def events(self):
+    def events(self) -> list:
         return self.api.events
 
     @property
-    def namespace(self):
+    def namespace(self) -> str:
         return self._namespace
 
     @property
-    def name_template(self):
+    def name_template(self) -> template.Template:
         return self._name_template
 
     @property
-    def allowed_event_groups(self):
+    def allowed_event_groups(self) -> list:
         return self._allowed_event_groups
 
     @property
-    def forced_covers(self):
+    def forced_covers(self) -> list:
         return self._forced_covers
 
-    async def start(self):
+    async def start(self) -> None:
         """Start listening to HomeSeer for device updates."""
         await self.api.start_listener()
 
-    async def stop(self, *args):
+    async def stop(self, *args) -> None:
         """Stop listening to HomeSeer for device updates."""
         await self.api.stop_listener()
 
-    def add_remotes(self):
+    def add_remotes(self) -> None:
         for device in self.devices:
             if device.device_type_string == DEVICE_ZWAVE_CENTRAL_SCENE:
                 self.remotes.append(HomeSeerRemote(self._hass, device))
