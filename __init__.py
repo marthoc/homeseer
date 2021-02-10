@@ -80,11 +80,7 @@ async def async_setup_entry(hass, config_entry):
         forced_covers,
     )
 
-    try:
-        await asyncio.wait_for(homeseer.api.initialize(), 10)
-    except asyncio.TimeoutError:
-        _LOGGER.error(f"Could not connect to HomeSeer at {host}, aborting entry setup.")
-        return False
+    await homeseer.api.initialize()
 
     if not homeseer.devices and not homeseer.events:
         _LOGGER.error(
