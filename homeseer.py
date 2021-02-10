@@ -1,6 +1,6 @@
 """Provides the base representation for all HomeSeer entities."""
 from libhomeseer import (
-    HomeSeerBasicDevice,
+    HomeSeerStatusDevice,
     HomeSeerSwitchableDevice,
     HomeSeerLockableDevice,
     HomeSeerDimmableDevice,
@@ -28,7 +28,7 @@ class HomeSeerEntity(Entity):
     def __init__(
         self,
         device: Union[
-            HomeSeerBasicDevice,
+            HomeSeerStatusDevice,
             HomeSeerSwitchableDevice,
             HomeSeerDimmableDevice,
             HomeSeerLockableDevice,
