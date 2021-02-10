@@ -88,7 +88,7 @@ async def async_setup_entry(hass, config_entry):
         )
         return False
 
-    await homeseer.api.start_listener()
+    await homeseer.start()
     attempts = 0
     while not homeseer.api.available:
         if attempts < 5:
@@ -98,15 +98,22 @@ async def async_setup_entry(hass, config_entry):
         _LOGGER.error(
             f"Failed to connect to HomeSeer ASCII connection at {host}:{ascii_port}, aborting entry setup."
         )
-        await homeseer.api.stop_listener()
+        await homeseer.stop()
         return False
 
     homeseer.add_remotes()
 
-    if not allow_events and len(allowed_event_groups) == 0:
+    if not allow_events and not allowed_event_groups:
         HOMESEER_PLATFORMS.remove("scene")
 
-    hass.bus.async_listen_once("homeassistant_stop", homeseer.api.stop_listener)
+    hass.data[DOMAIN] = homeseer
+
+    for platform in HOMESEER_PLATFORMS:
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setup(config_entry, platform)
+        )
+
+    hass.bus.async_listen_once("homeassistant_stop", homeseer.stop)
 
     async def control_device_by_value(call):
         ref = call.data[ATTR_REF]
@@ -120,16 +127,6 @@ async def async_setup_entry(hass, config_entry):
         control_device_by_value,
         schema=SERVICE_CONTROL_DEVICE_BY_VALUE_SCHEMA,
     )
-
-    hass.data[DOMAIN] = homeseer
-
-    tasks = []
-    for platform in HOMESEER_PLATFORMS:
-        tasks.append(
-            hass.config_entries.async_forward_entry_setup(config_entry, platform)
-        )
-
-    return all(await asyncio.gather(*tasks))
 
 
 class HomeSeerConnection:
