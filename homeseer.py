@@ -53,9 +53,13 @@ class HomeSeerEntity(Entity):
             ATTR_DEVICE_TYPE_STRING: self._device.device_type_string,
             ATTR_VALUE: self._device.value,
             ATTR_STATUS: self._device.status,
-            ATTR_LAST_CHANGE: get_datetime_from_last_change(self._device.last_change)
-            .astimezone(self.hass.config.time_zone)
-            .isoformat("T", "seconds"),
+            ATTR_LAST_CHANGE: (
+                get_datetime_from_last_change(self._device.last_change)
+                .astimezone()
+                .isoformat("T", "seconds")
+                if get_datetime_from_last_change(self._device.last_change) is not None
+                else None
+            ),
         }
         return attr
 

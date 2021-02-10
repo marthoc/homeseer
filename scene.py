@@ -18,7 +18,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             and event.group not in homeseer.allowed_event_groups
         ):
             continue
-        entity = HSScene(event)
+        entity = HomeSeerScene(event)
         scenes.append(entity)
         _LOGGER.info(f"Added HomeSeer event: {entity.name}")
 
@@ -26,7 +26,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         async_add_entities(scenes)
 
 
-class HomeSeer(Scene):
+class HomeSeerScene(Scene):
     """Representation of a HomeSeer event."""
 
     def __init__(self, event):
