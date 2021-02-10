@@ -1,48 +1,44 @@
 {
-  "title": "HomeSeer",
-  "config": {
-    "step": {
-      "user": {
-        "title": "HomeSeer",
-        "description": "See https://github.com/marthoc/homeseer for more information on configuring this integration.",
-        "data": {
-          "host": "IP Address",
-          "username": "Username",
-          "password": "Password",
-          "http_port": "HTTP Port",
-          "ascii_port": "ASCII Port"
-        }
-      },
-      "config": {
-        "title": "HomeSeer Initial Configuration Options",
-        "description": "Namespace is a unique string identifying this HomeSeer instance. Name Template defines how new entities are initially named in Home Assistant.",
-        "data": {
-          "namespace": "Namespace of this HomeSeer instance",
-          "name_template": "Entity name template (Jinja2)",
-          "allow_events": "Create Scenes from HomeSeer Events?"
-        }
-      },
-      "multilevels": {
-        "title": "Z-Wave Switch Multilevels to represent as Covers",
-        "description": "Some blinds or window coverings are defined in HomeSeer the same way as lights. Select which of these device refs should actually be represented as Covers in Home Assistant.",
-        "data": {
-          "forced_covers": "Select Z-Wave Switch Multilevels"
-        }
-      },
-      "groups": {
-        "title": "Filter HomeSeer Event Groups",
-        "description": "Select which HomeSeer event groups will be allowed in Home Assistant. Selecting any groups here will allow ONLY those groups; selecting no groups here will allow ALL event groups.",
-        "data": {
-          "allowed_event_groups": "Select HomeSeer event groups"
+    "title": "HomeSeer",
+    "config": {
+        "step": {
+            "user": {
+                "title": "HomeSeer",
+                "description": "See https://github.com/marthoc/homeseer for more information on configuring this integration.",
+                "data": {
+                    "host": "IP Address",
+                    "username": "Username",
+                    "password": "Password",
+                    "http_port": "HTTP Port",
+                    "ascii_port": "ASCII Port"
+                }
+            },
+            "config": {
+                "title": "HomeSeer Initial Configuration Options",
+                "description": "Namespace is a unique string identifying this HomeSeer instance. Name Template defines how new entities are initially named in Home Assistant.",
+                "data": {
+                    "namespace": "Namespace of this HomeSeer instance",
+                    "name_template": "Entity name template (Jinja2)",
+                    "allow_events": "Create Scenes from HomeSeer Events?"
+                }
+            },
+            "multilevels": {
+                "title": "Z-Wave Switch Multilevels to represent as Covers",
+                "description": "Some blinds or window coverings are defined in HomeSeer the same way as lights. Select which of these device refs should actually be represented as Covers in Home Assistant.",
+                "data": {"forced_covers": "Select Z-Wave Switch Multilevels"}
+            },
+            "groups": {
+                "title": "Filter HomeSeer Event Groups",
+                "description": "Select which HomeSeer event groups will be allowed in Home Assistant. Selecting any groups here will allow ONLY those groups; selecting no groups here will allow ALL event groups.",
+                "data": {"allowed_event_groups": "Select HomeSeer event groups"}
+            }
+        },
+        "error": {
+            "initialize_failed": "Cannot connect to HomeSeer, or no devices found that are supported by Home Assistant",
+            "template_failed": "The provided entity name template is not a valid Jinja2 template"
+        },
+        "abort": {
+            "single_instance_allowed": "[%key:common::config_flow::abort::single_instance_allowed%]"
         }
     }
-    },
-    "error": {
-      "initialize_failed": "Cannot connect to HomeSeer, or no devices found that are supported by Home Assistant",
-      "template_failed": "The provided entity name template is not a valid Jinja2 template"
-    },
-    "abort": {
-      "single_instance_allowed": "[%key:common::config_flow::abort::single_instance_allowed%]"
-    }
-  }
 }

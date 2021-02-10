@@ -32,9 +32,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class HomeSeerLock(HomeSeerEntity, LockEntity):
     """Representation of a HomeSeer lock device."""
 
-    def __init__(self, device, connection):
-        HomeSeerEntity.__init__(self, device, connection)
-
     @property
     def is_locked(self):
         """Return true if device is locked."""

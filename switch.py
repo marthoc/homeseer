@@ -32,9 +32,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class HomeSeerSwitch(HomeSeerEntity, SwitchEntity):
     """Representation of a HomeSeer switch-type device."""
 
-    def __init__(self, device, connection):
-        HomeSeerEntity.__init__(self, device, connection)
-
     @property
     def is_on(self):
         """Return true if device is on."""

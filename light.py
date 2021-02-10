@@ -26,7 +26,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             device.device_type_string in LIGHT_TYPES
             and device.ref not in homeseer.forced_covers
         ):
-            entity = HSLight(device, homeseer)
+            entity = HomeSeerLight(device, homeseer)
             light_entities.append(entity)
             _LOGGER.info(
                 f"Added HomeSeer light-type device: {entity.name} ({entity.device_state_attributes})"
@@ -36,11 +36,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         async_add_entities(light_entities)
 
 
-class HSLight(HomeSeerEntity, LightEntity):
+class HomeSeerLight(HomeSeerEntity, LightEntity):
     """Representation of a HomeSeer light-type device."""
-
-    def __init__(self, device, connection):
-        HomeSeerEntity.__init__(self, device, connection)
 
     @property
     def supported_features(self):

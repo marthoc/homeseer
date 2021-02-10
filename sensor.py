@@ -60,9 +60,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class HomeSeerSensor(HomeSeerEntity):
     """Base representation of a HomeSeer sensor-type device."""
 
-    def __init__(self, device, connection):
-        HomeSeerEntity.__init__(self, device, connection)
-
     @property
     def state(self):
         return self._device.value
