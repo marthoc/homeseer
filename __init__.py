@@ -188,6 +188,14 @@ class HomeSeerConnection:
     def forced_covers(self):
         return self._forced_covers
 
+    async def start(self):
+        """Start listening to HomeSeer for device updates."""
+        await self.api.start_listener()
+
+    async def stop(self, *args):
+        """Stop listening to HomeSeer for device updates."""
+        await self.api.stop_listener()
+
     def add_remotes(self):
         for device in self.devices:
             if device.device_type_string == DEVICE_ZWAVE_CENTRAL_SCENE:
