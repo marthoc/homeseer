@@ -35,7 +35,7 @@ HomeSeer devices of the type "Z-Wave Central Scene" will not create an entity in
 1. Create the directory `custom_components` inside your Home Assistant config directory.
 2. `cd` into the `custom_components` directory and do `git clone https://github.com/marthoc/homeseer`.
 3. Start Home Assistant and configure the integration via the Configuration/Integrations menu.
-4. Problems with certain devices (i.e. not supported yet) will be reported in the debug logs for the component/pyHS3.
+4. Problems with certain devices (i.e. not supported yet) will be reported in the debug logs for the component/libhomeseer.
 
 ## Upgrade
 

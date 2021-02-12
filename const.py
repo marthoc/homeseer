@@ -1,16 +1,14 @@
-"""
-Constants for the HomeSeer component.
-"""
-
-import logging
-
-_LOGGER = logging.getLogger(__name__)
+"""Constants for the HomeSeer integration."""
 
 DOMAIN = "homeseer"
-HOMESEER_CONFIG = "homeseer_config"
 
 ATTR_REF = "ref"
+ATTR_LOCATION = "location"
+ATTR_LOCATION2 = "location2"
 ATTR_VALUE = "value"
+ATTR_STATUS = "status"
+ATTR_DEVICE_TYPE_STRING = "device_type_string"
+ATTR_LAST_CHANGE = "last_change"
 
 CONF_HTTP_PORT = "http_port"
 CONF_ASCII_PORT = "ascii_port"
@@ -20,10 +18,6 @@ CONF_NAME_TEMPLATE = "name_template"
 CONF_ALLOWED_EVENT_GROUPS = "allowed_event_groups"
 CONF_FORCED_COVERS = "forced_covers"
 
-DEFAULT_HTTP_PORT = 80
-DEFAULT_PASSWORD = "default"
-DEFAULT_USERNAME = "default"
-DEFAULT_ASCII_PORT = 11000
 DEFAULT_NAME_TEMPLATE = "{{ device.location2 }} {{ device.location }} {{ device.name }}"
 DEFAULT_NAMESPACE = "homeseer"
 DEFAULT_ALLOW_EVENTS = True

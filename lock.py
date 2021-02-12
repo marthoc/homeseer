@@ -1,65 +1,37 @@
-"""
-Support for HomeSeer lock-type devices.
-"""
+"""Support for HomeSeer lock-type devices."""
 
-from pyhs3 import HASS_LOCKS, STATE_LISTENING
+import logging
+from libhomeseer import DEVICE_ZWAVE_DOOR_LOCK
 
 from homeassistant.components.lock import LockEntity
 
-from .const import _LOGGER, DOMAIN
+from .const import DOMAIN
+from .homeseer import HomeSeerEntity
 
-DEPENDENCIES = ["homeseer"]
+_LOGGER = logging.getLogger(__name__)
+
+LOCK_TYPES = [DEVICE_ZWAVE_DOOR_LOCK]
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer lock-type devices."""
-    lock_devices = []
+    lock_entities = []
     homeseer = hass.data[DOMAIN]
 
     for device in homeseer.devices:
-        if device.device_type_string in HASS_LOCKS:
-            dev = HSLock(device, homeseer)
-            lock_devices.append(dev)
-            _LOGGER.info(f"Added HomeSeer lock-type device: {dev.name}")
+        if device.device_type_string in LOCK_TYPES:
+            entity = HomeSeerLock(device, homeseer)
+            lock_entities.append(entity)
+            _LOGGER.info(
+                f"Added HomeSeer lock-type device: {entity.name} ({entity.device_state_attributes})"
+            )
 
-    async_add_entities(lock_devices)
+    if lock_entities:
+        async_add_entities(lock_entities)
 
 
-class HSLock(LockEntity):
+class HomeSeerLock(HomeSeerEntity, LockEntity):
     """Representation of a HomeSeer lock device."""
-
-    def __init__(self, device, connection):
-        self._device = device
-        self._connection = connection
-
-    @property
-    def available(self):
-        """Return whether the device is available."""
-        return self._connection.api.state == STATE_LISTENING
-
-    @property
-    def device_state_attributes(self):
-        attr = {
-            "Device Ref": self._device.ref,
-            "Location": self._device.location,
-            "Location 2": self._device.location2,
-        }
-        return attr
-
-    @property
-    def unique_id(self):
-        """Return a unique ID for the device."""
-        return f"{self._connection.namespace}-{self._device.ref}"
-
-    @property
-    def name(self):
-        """Return the name of the device."""
-        return self._connection.name_template.async_render(device=self._device)
-
-    @property
-    def should_poll(self):
-        """No polling needed."""
-        return False
 
     @property
     def is_locked(self):
@@ -71,7 +43,3 @@ class HSLock(LockEntity):
 
     async def async_unlock(self, **kwargs):
         await self._device.unlock()
-
-    async def async_added_to_hass(self):
-        """Register value update callback."""
-        self._device.register_update_callback(self.async_schedule_update_ha_state)
