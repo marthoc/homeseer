@@ -1,4 +1,5 @@
 """Support for HomeSeer cover-type devices."""
+
 import logging
 from libhomeseer import (
     DEVICE_ZWAVE_BARRIER_OPERATOR,

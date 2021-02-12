@@ -1,4 +1,5 @@
 """Support for HomeSeer switch-type devices."""
+
 import logging
 from libhomeseer import DEVICE_ZWAVE_SWITCH, DEVICE_ZWAVE_SWITCH_BINARY
 

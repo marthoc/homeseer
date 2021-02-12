@@ -1,4 +1,5 @@
 """Support for HomeSeer Events."""
+
 import logging
 from homeassistant.components.scene import Scene
 

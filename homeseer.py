@@ -46,6 +46,7 @@ class HomeSeerEntity(Entity):
     @property
     def device_state_attributes(self) -> dict:
         """Return a dictionary of state attributes."""
+        dt = get_datetime_from_last_change(self._device.last_change)
         attr = {
             ATTR_REF: self._device.ref,
             ATTR_LOCATION2: self._device.location2,
@@ -54,10 +55,7 @@ class HomeSeerEntity(Entity):
             ATTR_VALUE: self._device.value,
             ATTR_STATUS: self._device.status,
             ATTR_LAST_CHANGE: (
-                get_datetime_from_last_change(self._device.last_change)
-                .isoformat("T", "seconds")
-                if get_datetime_from_last_change(self._device.last_change) is not None
-                else None
+                dt.astimezone().isoformat("T", "seconds") if dt is not None else None
             ),
         }
         return attr

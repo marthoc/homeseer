@@ -1,4 +1,5 @@
 """Constants for the HomeSeer integration."""
+
 DOMAIN = "homeseer"
 
 ATTR_REF = "ref"

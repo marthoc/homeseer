@@ -1,4 +1,5 @@
 """Support for HomeSeer binary-sensor-type devices."""
+
 import logging
 from libhomeseer import DEVICE_ZWAVE_SENSOR_BINARY
 

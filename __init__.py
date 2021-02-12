@@ -2,6 +2,7 @@
 Custom integration for interacting with a HomeSeer software installation.
 For more details please refer to the documentation at https://github.com/marthoc/homeseer
 """
+
 import asyncio
 import logging
 from typing import ValuesView

@@ -1,4 +1,5 @@
-""" Support for HomeSeer lock-type devices."""
+"""Support for HomeSeer lock-type devices."""
+
 import logging
 from libhomeseer import DEVICE_ZWAVE_DOOR_LOCK
 

@@ -1,3 +1,5 @@
+"""Config flow support for the HomeSeer integration."""
+
 import asyncio
 import logging
 from libhomeseer import (
@@ -91,7 +93,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input[CONF_ASCII_PORT],
             )
 
-            await homeseer.initialize()
+            try:
+                await asyncio.wait_for(homeseer.initialize(), 5)
+            except asyncio.TimeoutError:
+                _LOGGER.error(f"Could not connect to HomeSeer at {user_input[CONF_HOST]}")
 
             if homeseer.devices or homeseer.events:
                 self._host = user_input[CONF_HOST]

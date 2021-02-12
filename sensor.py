@@ -1,4 +1,5 @@
 """Support for HomeSeer sensor-type devices."""
+
 import logging
 from libhomeseer import (
     DEVICE_ZWAVE_BATTERY,
