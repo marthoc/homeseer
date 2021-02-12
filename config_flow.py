@@ -127,9 +127,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 cv.template(str(user_input[CONF_NAME_TEMPLATE]))
                 self._name_template = user_input[CONF_NAME_TEMPLATE]
-                if len(self._switch_multilevels) > 0:
+                if self._switch_multilevels:
                     return await self.async_step_multilevels()
-                if len(self._event_groups) > 0 and self._allow_events:
+                if self._event_groups and self._allow_events:
                     return await self.async_step_groups()
                 return self.finalize_config_entry_flow()
             except (vol.Invalid, TemplateError):
@@ -145,7 +145,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if user_input.get(CONF_FORCED_COVERS) is not None:
                 self._forced_covers = user_input[CONF_FORCED_COVERS]
 
-            if len(self._event_groups) > 0 and self._allow_events:
+            if self._event_groups and self._allow_events:
                 return await self.async_step_groups()
             return self.finalize_config_entry_flow()
 

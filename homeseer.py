@@ -1,4 +1,5 @@
 """Provides the base representation for all HomeSeer entities."""
+
 from libhomeseer import (
     HomeSeerStatusDevice,
     HomeSeerSwitchableDevice,
