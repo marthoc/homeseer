@@ -3,6 +3,7 @@
 import logging
 from libhomeseer import (
     DEVICE_ZWAVE_BATTERY,
+    DEVICE_ZWAVE_DOOR_LOCK_LOGGING,
     DEVICE_ZWAVE_FAN_STATE,
     DEVICE_ZWAVE_LUMINANCE,
     DEVICE_ZWAVE_OPERATING_STATE,
@@ -33,6 +34,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPES = [
     DEVICE_ZWAVE_BATTERY,
+    DEVICE_ZWAVE_DOOR_LOCK_LOGGING,
     DEVICE_ZWAVE_FAN_STATE,
     DEVICE_ZWAVE_LUMINANCE,
     DEVICE_ZWAVE_OPERATING_STATE,
@@ -220,6 +222,20 @@ class HomeSeerSensorMultilevel(HomeSeerSensor):
         return None
 
 
+class HomeSeerDoorLockLogging(HomeSeerEntity):
+    """Representation of a door-lock-logging sensor."""
+
+    @property
+    def state(self) -> str:
+        """Return the status of the device."""
+        return self._device.status
+
+    @property
+    def icon(self) -> str:
+        """Return a lock icon."""
+        return "mdi:lock-clock"
+
+
 def get_sensor_entity(device, connection):
     """Return the proper sensor object based on device type."""
     if device.device_type_string == DEVICE_ZWAVE_BATTERY:
@@ -234,4 +250,6 @@ def get_sensor_entity(device, connection):
         return HomeSeerOperatingState(device, connection)
     elif device.device_type_string == DEVICE_ZWAVE_SENSOR_MULTILEVEL:
         return HomeSeerSensorMultilevel(device, connection)
+    elif device.device_type_string == DEVICE_ZWAVE_DOOR_LOCK_LOGGING:
+        return HomeSeerDoorLockLogging(device, connection)
     return HomeSeerSensor(device, connection)
