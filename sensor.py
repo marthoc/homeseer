@@ -4,27 +4,45 @@ import logging
 from libhomeseer import (
     DEVICE_ZWAVE_BATTERY,
     DEVICE_ZWAVE_DOOR_LOCK_LOGGING,
+    DEVICE_ZWAVE_ELECTRIC_METER,
     DEVICE_ZWAVE_FAN_STATE,
     DEVICE_ZWAVE_LUMINANCE,
     DEVICE_ZWAVE_OPERATING_STATE,
     DEVICE_ZWAVE_RELATIVE_HUMIDITY,
     DEVICE_ZWAVE_SENSOR_MULTILEVEL,
+    HS_UNIT_A,
+    HS_UNIT_AMPERES,
     HS_UNIT_CELSIUS,
     HS_UNIT_FAHRENHEIT,
+    HS_UNIT_KW,
+    HS_UNIT_KWH,
     HS_UNIT_LUX,
     HS_UNIT_PERCENTAGE,
+    HS_UNIT_V,
+    HS_UNIT_VOLTS,
+    HS_UNIT_W,
+    HS_UNIT_WATTS,
     get_uom_from_status,
 )
 
 from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
+    DEVICE_CLASS_CURRENT,
+    DEVICE_CLASS_ENERGY,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_ILLUMINANCE,
+    DEVICE_CLASS_POWER,
     DEVICE_CLASS_TEMPERATURE,
+    DEVICE_CLASS_VOLTAGE,
+    ELECTRICAL_CURRENT_AMPERE,
+    ENERGY_KILO_WATT_HOUR,
     LIGHT_LUX,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
     PERCENTAGE,
+    POWER_KILO_WATT,
+    POWER_WATT,
+    VOLT
 )
 
 from .const import DOMAIN
@@ -35,6 +53,7 @@ _LOGGER = logging.getLogger(__name__)
 SENSOR_TYPES = [
     DEVICE_ZWAVE_BATTERY,
     DEVICE_ZWAVE_DOOR_LOCK_LOGGING,
+    DEVICE_ZWAVE_ELECTRIC_METER,
     DEVICE_ZWAVE_FAN_STATE,
     DEVICE_ZWAVE_LUMINANCE,
     DEVICE_ZWAVE_OPERATING_STATE,
@@ -236,6 +255,42 @@ class HomeSeerDoorLockLogging(HomeSeerEntity):
         return "mdi:lock-clock"
 
 
+class HomeSeerElectricMeter(HomeSeerSensor):
+    """Representation of an electric meter sensor."""
+
+    @property
+    def device_class(self):
+        """Return the device class of the sensor."""
+        uom = get_uom_from_status(self._device.status)
+        if uom == HS_UNIT_A or uom == HS_UNIT_AMPERES:
+            return DEVICE_CLASS_CURRENT
+        elif uom == HS_UNIT_KW:
+            return DEVICE_CLASS_POWER
+        elif uom == HS_UNIT_KWH:
+            return DEVICE_CLASS_ENERGY
+        elif uom == HS_UNIT_V or uom == HS_UNIT_VOLTS:
+            return DEVICE_CLASS_VOLTAGE
+        elif uom == HS_UNIT_W or uom == HS_UNIT_WATTS:
+            return DEVICE_CLASS_POWER
+        return None
+
+    @property
+    def unit_of_measurement(self):
+        """Return a unit of measurement for the sensor."""
+        uom = get_uom_from_status(self._device.status)
+        if uom == HS_UNIT_A or uom == HS_UNIT_AMPERES:
+            return ELECTRICAL_CURRENT_AMPERE
+        elif uom == HS_UNIT_KW:
+            return POWER_KILO_WATT
+        elif uom == HS_UNIT_KWH:
+            return ENERGY_KILO_WATT_HOUR
+        elif uom == HS_UNIT_V or uom == HS_UNIT_VOLTS:
+            return VOLT
+        elif uom == HS_UNIT_W or uom == HS_UNIT_WATTS:
+            return POWER_WATT
+        return None
+
+
 def get_sensor_entity(device, connection):
     """Return the proper sensor object based on device type."""
     if device.device_type_string == DEVICE_ZWAVE_BATTERY:
@@ -252,4 +307,6 @@ def get_sensor_entity(device, connection):
         return HomeSeerSensorMultilevel(device, connection)
     elif device.device_type_string == DEVICE_ZWAVE_DOOR_LOCK_LOGGING:
         return HomeSeerDoorLockLogging(device, connection)
+    elif device.device_type_string == DEVICE_ZWAVE_ELECTRIC_METER:
+        return HomeSeerElectricMeter(device, connection)
     return HomeSeerSensor(device, connection)
