@@ -42,7 +42,7 @@ from homeassistant.const import (
     PERCENTAGE,
     POWER_KILO_WATT,
     POWER_WATT,
-    VOLT
+    VOLT,
 )
 
 from .const import DOMAIN
@@ -50,14 +50,9 @@ from .homeseer import HomeSeerEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-SENSOR_TYPES = [
-    DEVICE_ZWAVE_BATTERY,
-    DEVICE_ZWAVE_DOOR_LOCK_LOGGING,
+GENERIC_VALUE_SENSOR_TYPES = [
     DEVICE_ZWAVE_ELECTRIC_METER,
-    DEVICE_ZWAVE_FAN_STATE,
     DEVICE_ZWAVE_LUMINANCE,
-    DEVICE_ZWAVE_OPERATING_STATE,
-    DEVICE_ZWAVE_RELATIVE_HUMIDITY,
     DEVICE_ZWAVE_SENSOR_MULTILEVEL,
 ]
 
@@ -65,34 +60,85 @@ SENSOR_TYPES = [
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer sensor-type devices."""
     sensor_entities = []
-    homeseer = hass.data[DOMAIN]
+    bridge = hass.data[DOMAIN]
 
-    for device in homeseer.devices:
-        if device.device_type_string in SENSOR_TYPES:
-            entity = get_sensor_entity(device, homeseer)
-            sensor_entities.append(entity)
-            _LOGGER.info(
-                f"Added HomeSeer sensor-type device: {entity.name} ({entity.device_state_attributes}"
-            )
+    for device in bridge.devices["sensor"]:
+        entity = get_sensor_entity(device, bridge)
+        sensor_entities.append(entity)
+        _LOGGER.info(
+            f"Added HomeSeer sensor-type device: {entity.name} ({entity.device_state_attributes})"
+        )
 
     if sensor_entities:
         async_add_entities(sensor_entities)
 
 
-class HomeSeerSensor(HomeSeerEntity):
-    """Base representation of a HomeSeer sensor-type device."""
+class HomeSeerStatusSensor(HomeSeerEntity):
+    """Base representation of a HomeSeer sensor-type device that reports text values (status)."""
+
+    @property
+    def state(self):
+        return self._device.status
+
+
+class HomeSeerValueSensor(HomeSeerEntity):
+    """Base representation of a HomeSeer sensor-type device that reports numeric values."""
 
     @property
     def state(self):
         return self._device.value
 
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement parsed from the device's status."""
+        unit = get_uom_from_status(self._device.status)
+        if unit == HS_UNIT_LUX:
+            return LIGHT_LUX
+        elif unit == HS_UNIT_CELSIUS:
+            return TEMP_CELSIUS
+        elif unit == HS_UNIT_FAHRENHEIT:
+            return TEMP_FAHRENHEIT
+        elif unit == HS_UNIT_PERCENTAGE:
+            return PERCENTAGE
+        elif unit == HS_UNIT_A or unit == HS_UNIT_AMPERES:
+            return ELECTRICAL_CURRENT_AMPERE
+        elif unit == HS_UNIT_KW:
+            return POWER_KILO_WATT
+        elif unit == HS_UNIT_KWH:
+            return ENERGY_KILO_WATT_HOUR
+        elif unit == HS_UNIT_V or unit == HS_UNIT_VOLTS:
+            return VOLT
+        elif unit == HS_UNIT_W or unit == HS_UNIT_WATTS:
+            return POWER_WATT
+        return None
 
-class HomeSeerBattery(HomeSeerSensor):
+    @property
+    def device_class(self):
+        """Return the device class of the device based on the device's unit of measure."""
+        unit = get_uom_from_status(self._device.status)
+        if unit == HS_UNIT_LUX:
+            return DEVICE_CLASS_ILLUMINANCE
+        elif unit == HS_UNIT_CELSIUS or unit == HS_UNIT_FAHRENHEIT:
+            return DEVICE_CLASS_TEMPERATURE
+        elif unit == HS_UNIT_A or unit == HS_UNIT_AMPERES:
+            return DEVICE_CLASS_CURRENT
+        elif unit == HS_UNIT_KW:
+            return DEVICE_CLASS_POWER
+        elif unit == HS_UNIT_KWH:
+            return DEVICE_CLASS_ENERGY
+        elif unit == HS_UNIT_V or unit == HS_UNIT_VOLTS:
+            return DEVICE_CLASS_VOLTAGE
+        elif unit == HS_UNIT_W or unit == HS_UNIT_WATTS:
+            return DEVICE_CLASS_POWER
+        return None
+
+
+class HomeSeerBatterySensor(HomeSeerValueSensor):
     """Representation of a HomeSeer device that reports battery level."""
 
     @property
-    def unit_of_measurement(self):
-        return PERCENTAGE
+    def device_class(self):
+        return DEVICE_CLASS_BATTERY
 
     @property
     def icon(self):
@@ -118,89 +164,27 @@ class HomeSeerBattery(HomeSeerSensor):
             return "mdi:battery-10"
         return None
 
-    @property
-    def device_class(self):
-        return DEVICE_CLASS_BATTERY
 
-
-class HomeSeerHumidity(HomeSeerSensor):
+class HomeSeerHumiditySensor(HomeSeerValueSensor):
     """Representation of a HomeSeer humidity sensor device."""
-
-    @property
-    def unit_of_measurement(self):
-        return PERCENTAGE
 
     @property
     def device_class(self):
         return DEVICE_CLASS_HUMIDITY
 
 
-class HomeSeerLuminance(HomeSeerSensor):
-    """Representation of a HomeSeer light level sensor device."""
-
-    @property
-    def unit_of_measurement(self):
-        return PERCENTAGE
-
-    @property
-    def device_class(self):
-        return DEVICE_CLASS_ILLUMINANCE
-
-
-class HomeSeerFanState(HomeSeerSensor):
+class HomeSeerFanStateSensor(HomeSeerStatusSensor):
     """Representation of a HomeSeer HVAC fan state sensor device."""
 
     @property
-    def state(self):
-        """Return the state of the device."""
-        if self._device.value == 0:
-            return "Off"
-        elif self._device.value == 1:
-            return "On"
-        elif self._device.value == 2:
-            return "On High"
-        elif self._device.value == 3:
-            return "On Medium"
-        elif self._device.value == 4:
-            return "On Circulation"
-        elif self._device.value == 5:
-            return "On Humidity Circulation"
-        elif self._device.value == 6:
-            return "On Right-Left Circulation"
-        elif self._device.value == 7:
-            return "On Up-Down Circulation"
-        elif self._device.value == 8:
-            return "On Quiet Circulation"
-        return None
-
-    @property
     def icon(self):
-        if self.state == 0:
+        if self._device.value == 0:
             return "mdi:fan-off"
         return "mdi:fan"
 
 
-class HomeSeerOperatingState(HomeSeerSensor):
+class HomeSeerOperatingStateSensor(HomeSeerStatusSensor):
     """Representation of a HomeSeer HVAC operating state sensor device."""
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        if self._device.value == 0:
-            return "Idle"
-        elif self._device.value == 1:
-            return "Heating"
-        elif self._device.value == 2:
-            return "Cooling"
-        elif self._device.value == 3:
-            return "Fan Only"
-        elif self._device.value == 4:
-            return "Pending Heat"
-        elif self._device.value == 5:
-            return "Pending Cool"
-        elif self._device.value == 6:
-            return "Vent-Economizer"
-        return None
 
     @property
     def icon(self):
@@ -213,100 +197,27 @@ class HomeSeerOperatingState(HomeSeerSensor):
         return "mdi:fan"
 
 
-class HomeSeerSensorMultilevel(HomeSeerSensor):
-    """Representation of a HomeSeer multi-level sensor."""
-
-    @property
-    def device_class(self):
-        if self.unit_of_measurement == HS_UNIT_LUX:
-            return DEVICE_CLASS_ILLUMINANCE
-        if (
-            self.unit_of_measurement == HS_UNIT_CELSIUS
-            or self.unit_of_measurement == HS_UNIT_FAHRENHEIT
-        ):
-            return DEVICE_CLASS_TEMPERATURE
-        return None
-
-    @property
-    def unit_of_measurement(self):
-        uom = get_uom_from_status(self._device.status)
-        if uom == HS_UNIT_LUX:
-            return LIGHT_LUX
-        if uom == HS_UNIT_CELSIUS:
-            return TEMP_CELSIUS
-        if uom == HS_UNIT_FAHRENHEIT:
-            return TEMP_FAHRENHEIT
-        if uom == HS_UNIT_PERCENTAGE:
-            return PERCENTAGE
-        return None
-
-
-class HomeSeerDoorLockLogging(HomeSeerEntity):
+class HomeSeerDoorLockLoggingSensor(HomeSeerStatusSensor):
     """Representation of a door-lock-logging sensor."""
 
     @property
-    def state(self) -> str:
-        """Return the status of the device."""
-        return self._device.status
-
-    @property
     def icon(self) -> str:
-        """Return a lock icon."""
+        """Return an appropriate lock icon."""
         return "mdi:lock-clock"
-
-
-class HomeSeerElectricMeter(HomeSeerSensor):
-    """Representation of an electric meter sensor."""
-
-    @property
-    def device_class(self):
-        """Return the device class of the sensor."""
-        uom = get_uom_from_status(self._device.status)
-        if uom == HS_UNIT_A or uom == HS_UNIT_AMPERES:
-            return DEVICE_CLASS_CURRENT
-        elif uom == HS_UNIT_KW:
-            return DEVICE_CLASS_POWER
-        elif uom == HS_UNIT_KWH:
-            return DEVICE_CLASS_ENERGY
-        elif uom == HS_UNIT_V or uom == HS_UNIT_VOLTS:
-            return DEVICE_CLASS_VOLTAGE
-        elif uom == HS_UNIT_W or uom == HS_UNIT_WATTS:
-            return DEVICE_CLASS_POWER
-        return None
-
-    @property
-    def unit_of_measurement(self):
-        """Return a unit of measurement for the sensor."""
-        uom = get_uom_from_status(self._device.status)
-        if uom == HS_UNIT_A or uom == HS_UNIT_AMPERES:
-            return ELECTRICAL_CURRENT_AMPERE
-        elif uom == HS_UNIT_KW:
-            return POWER_KILO_WATT
-        elif uom == HS_UNIT_KWH:
-            return ENERGY_KILO_WATT_HOUR
-        elif uom == HS_UNIT_V or uom == HS_UNIT_VOLTS:
-            return VOLT
-        elif uom == HS_UNIT_W or uom == HS_UNIT_WATTS:
-            return POWER_WATT
-        return None
 
 
 def get_sensor_entity(device, connection):
     """Return the proper sensor object based on device type."""
     if device.device_type_string == DEVICE_ZWAVE_BATTERY:
-        return HomeSeerBattery(device, connection)
+        return HomeSeerBatterySensor(device, connection)
     elif device.device_type_string == DEVICE_ZWAVE_RELATIVE_HUMIDITY:
-        return HomeSeerHumidity(device, connection)
-    elif device.device_type_string == DEVICE_ZWAVE_LUMINANCE:
-        return HomeSeerLuminance(device, connection)
+        return HomeSeerHumiditySensor(device, connection)
     elif device.device_type_string == DEVICE_ZWAVE_FAN_STATE:
-        return HomeSeerFanState(device, connection)
+        return HomeSeerFanStateSensor(device, connection)
     elif device.device_type_string == DEVICE_ZWAVE_OPERATING_STATE:
-        return HomeSeerOperatingState(device, connection)
-    elif device.device_type_string == DEVICE_ZWAVE_SENSOR_MULTILEVEL:
-        return HomeSeerSensorMultilevel(device, connection)
+        return HomeSeerOperatingStateSensor(device, connection)
     elif device.device_type_string == DEVICE_ZWAVE_DOOR_LOCK_LOGGING:
-        return HomeSeerDoorLockLogging(device, connection)
-    elif device.device_type_string == DEVICE_ZWAVE_ELECTRIC_METER:
-        return HomeSeerElectricMeter(device, connection)
-    return HomeSeerSensor(device, connection)
+        return HomeSeerDoorLockLoggingSensor(device, connection)
+    elif device.device_type_string in GENERIC_VALUE_SENSOR_TYPES:
+        return HomeSeerValueSensor(device, connection)
+    return HomeSeerStatusSensor(device, connection)

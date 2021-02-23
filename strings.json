@@ -22,10 +22,15 @@
                     "allow_events": "Create Scenes from HomeSeer Events?"
                 }
             },
-            "multilevels": {
-                "title": "Z-Wave Switch Multilevels to represent as Covers",
-                "description": "Some blinds or window coverings are defined in HomeSeer the same way as lights. Select which of these device refs should actually be represented as Covers in Home Assistant.",
-                "data": {"forced_covers": "Select Z-Wave Switch Multilevels"}
+            "interfaces": {
+                "title": "HomeSeer Device Interfaces to allow in Home Assistant",
+                "description": "Select the types of technology interfaces present in HomeSeer to allow in Home Assistant. The type 'HomeSeer' represents devices native to HomeSeer such as virtual devices. (Note: Z-Wave is best-supported, but most devices from other interfaces should 'just work'.)",
+                "data": {"allowed_interfaces":  "Select HomeSeer Device Interfaces"}
+            },
+            "covers": {
+                "title": "HomeSeer Devices to represent as Covers",
+                "description": "Some blinds, window coverings, or garage doors are defined in HomeSeer the same way as lights or switches. Select which of these device refs should actually be represented as Covers in Home Assistant.",
+                "data": {"forced_covers": "Select HomeSeer devices"}
             },
             "groups": {
                 "title": "Filter HomeSeer Event Groups",
