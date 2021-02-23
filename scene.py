@@ -11,14 +11,9 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer events as Home Assistant scenes."""
     scenes = []
-    homeseer = hass.data[DOMAIN]
+    bridge = hass.data[DOMAIN]
 
-    for event in homeseer.events:
-        if (
-            len(homeseer.allowed_event_groups) > 0
-            and event.group not in homeseer.allowed_event_groups
-        ):
-            continue
+    for event in bridge.devices["scene"]:
         entity = HomeSeerScene(event)
         scenes.append(entity)
         _LOGGER.info(f"Added HomeSeer event: {entity.name}")

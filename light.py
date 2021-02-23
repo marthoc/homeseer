@@ -1,7 +1,6 @@
 """Support for HomeSeer light-type devices."""
 
 import logging
-from libhomeseer import DEVICE_ZWAVE_SWITCH_MULTILEVEL
 
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
@@ -14,24 +13,18 @@ from .homeseer import HomeSeerEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-LIGHT_TYPES = [DEVICE_ZWAVE_SWITCH_MULTILEVEL]
-
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer light-type devices."""
     light_entities = []
-    homeseer = hass.data[DOMAIN]
+    bridge = hass.data[DOMAIN]
 
-    for device in homeseer.devices:
-        if (
-            device.device_type_string in LIGHT_TYPES
-            and device.ref not in homeseer.forced_covers
-        ):
-            entity = HomeSeerLight(device, homeseer)
-            light_entities.append(entity)
-            _LOGGER.info(
-                f"Added HomeSeer light-type device: {entity.name} ({entity.device_state_attributes})"
-            )
+    for device in bridge.devices["light"]:
+        entity = HomeSeerLight(device, bridge)
+        light_entities.append(entity)
+        _LOGGER.info(
+            f"Added HomeSeer light-type device: {entity.name} ({entity.device_state_attributes})"
+        )
 
     if light_entities:
         async_add_entities(light_entities)

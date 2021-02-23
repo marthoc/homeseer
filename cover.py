@@ -1,10 +1,6 @@
 """Support for HomeSeer cover-type devices."""
 
 import logging
-from libhomeseer import (
-    DEVICE_ZWAVE_BARRIER_OPERATOR,
-    DEVICE_ZWAVE_SWITCH_MULTILEVEL,
-)
 
 from homeassistant.components.cover import (
     CoverEntity,
@@ -25,25 +21,22 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up HomeSeer cover-type devices."""
     cover_entities = []
-    homeseer = hass.data[DOMAIN]
+    bridge = hass.data[DOMAIN]
 
-    for device in homeseer.devices:
-        if device.device_type_string == DEVICE_ZWAVE_BARRIER_OPERATOR:
-            """Device is a garage-door opener."""
-            entity = HomeSeerGarageDoor(device, homeseer)
-            cover_entities.append(entity)
-            _LOGGER.info(
-                f"Added HomeSeer garage-type device: {entity.name} ({entity.device_state_attributes})"
-            )
-        elif (
-            device.device_type_string == DEVICE_ZWAVE_SWITCH_MULTILEVEL
-            and device.ref in homeseer.forced_covers
-        ):
+    for device in bridge.devices["cover"]:
+        if hasattr(device, "dim"):
             """Device is a blind."""
-            entity = HomeSeerBlind(device, homeseer)
+            entity = HomeSeerBlind(device, bridge)
             cover_entities.append(entity)
             _LOGGER.info(
                 f"Added HomeSeer blind-type device: {entity.name} ({entity.device_state_attributes})"
+            )
+        else:
+            """Device is a garage-door opener."""
+            entity = HomeSeerGarageDoor(device, bridge)
+            cover_entities.append(entity)
+            _LOGGER.info(
+                f"Added HomeSeer garage-type device: {entity.name} ({entity.device_state_attributes})"
             )
 
     if cover_entities:
