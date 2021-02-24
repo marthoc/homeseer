@@ -1,96 +1,91 @@
-# HomeSeer HS3 Custom Component for Home Assistant
+# HomeSeer Custom Integration for Home Assistant
 
-## Supported Devices
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs) [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WBGSD2WU6944G)
 
-Z-Wave devices of the following types should create entities in Home Assistant:
-- Z-Wave Barrier Operator (as Home Assistant cover)
-- Z-Wave Battery (as Home Assistant sensor)
-- Z-Wave Door Lock (as Home Assistant lock)
-- Z-Wave Sensor Binary (as Home Assistant binary sensor)
-- Z-Wave Sensor Multilevel (as Home Assistant sensor) 
-- Z-Wave Switch (as Home Assistant switch)
-- Z-Wave Switch Binary (as Home Assistant switch)
-- Z-Wave Switch Multilevel (as Home Assistant light or cover)
-- Z-Wave Central Scene (as Home Assistant event - see below)
-- Z-Wave Temperature (as Home Assistant sensor)
-- Z-Wave Relative Humidity (as Home Assistant sensor)
-- Z-Wave Luminance (as Home Assistant sensor)
-- Z-Wave Fan State for HVAC (as Home Assistant sensor)
-- Z-Wave Operating State for HVAC (as Home Assistant sensor)
+[Home Assistant](https://home-assistant.io/) custom integration supporting [HomeSeer](www.homeseer.com) Smart Home Software (HS3 and HS4).
 
-HomeSeer Events will be created as Home Assistant scenes (triggering the scene in Home Assistant will run the HomeSeer event).
+This integration will create Home Assistant entities for the following types of devices in HomeSeer by default:
 
-### Central Scene devices
+- "Switchable" devices (i.e. devices with On/Off controls) as a Home Assistant switch entity
+- "Dimmable" devices (i.e. devices with On/Off and Dim controls) as a Home Assistant light entity
+- "Lockable" devices (i.e. devices with Lock/Unlock controls) as a Home Assistant lock entity
+- "Status" devices (i.e. devices with no controls) as a Home Assistant sensor entity
 
-HomeSeer devices of the type "Z-Wave Central Scene" will not create an entity in Home Assistant; instead, when a Central Scene device is updated in HomeSeer, this component will fire an event on the Home Assistant event bus which can be used in Automations.
+The type of entity created can also depend on whether a "quirk" has been added for the device (see below) and options chosen by the user during configuration. This custom integration currently supports creating entities for the following Home Assistant platforms: binary sensor, cover, light, lock, scene, sensor, switch. Fan and Media Player entities will be added in a future update!
+
+## Pre-Installation
+This integration communicates with HomeSeer via both JSON and ASCII. You must enable control using JSON and ASCII commands in Tools/Setup/Network in the HomeSeer web interface. 
+
+## Installation
+This custom integration must be installed for it to be loaded by Home Assistant.
+
+_The recommended installation method is via [HACS](https://hacs.xyz)._
+
+### HACS
+
+1. Add https://github.com/marthoc/homeseer as a custom repository in HACS.
+2. Search for "HomeSeer" under "Integrations" in HACS.
+3. Click "Install".
+4. Proceed with Configuration (see below).
+
+### Manual
+
+1. Create a `custom_components` director in your Home Assistant configuration directory.
+2. Download the latest release from the GitHub "Releases" page.
+3. Copy the custom_components/homeseer directory from the archive into the custom_components directory in your Home Assistant configuration directory.
+4. Restart Home Assistant and proceed with Configuration (see below).
+
+## Configuration
+
+To enable the integration, add it from the Configuration - Integrations menu in Home Assistant: click `+`, then click "HomeSeer".
+
+The following options must be configured at the first stage of the configuration:
+
+|Parameter|Description|Default|
+|---------|-----------|-------|
+|Host|The IP address of the HomeSeer instance.|N/A|
+|Username|The username used to log into HomeSeer.|"default"|
+|Password|The password used to log into HomeSeer.|"default"|
+|HTTP Port|The HTTP port of the HomeSeer instance.|80|
+|ASCII Port|The ASCII port of the HomeSeer instance.|11000|
+
+After clicking submit, the following additional options will be presented to the user:
+
+|Parameter|Description|Default|
+|---------|-----------|-------|
+|Namespace|A unique string identifying this HomeSeer instance. You may input any string. (This will be used in a future release to allow connections to multiple HomeSeer instances.)|"homeseer"|
+|Entity Name Template|A template (Jinja2 format) describing how Home Assistant entities will be named. Default format is "location2 location name".|"{{ device.location2 }} {{ device.location }} {{ device.name }}"|
+|Create Scenes from HomeSeer Events?|If this box is ticked, a Home Assistant Scene will be created for each Event in HomeSeer. Events can be filtered by group during a later stage of the configuration.|True|
+
+After clicking submit, the user will be presented with successive dialogs to select: 
+- Technology interfaces present in HomeSeer to allow in Home Assistant. The type "HomeSeer" represents devices native to HomeSeer such as virtual devices. (Note: Z-Wave is best-supported, but most devices from other interfaces should 'just work'.) Deselecting an interface name here means that devices from that interface will NOT create Entities in Home Assistant.
+- If the user has ticked "Create scenes from HomeSeer Events?", the user will be able to select Event Groups in HomeSeer to allow in Home Assistant. Selecting any groups here will allow ONLY those groups; selecting no groups here will allow ALL event groups. The selected groups (or all groups) will create a Home Assistant Scene for each Event in that group.
+- Switches and Dimmers from HomeSeer to be represented as Covers (i.e. blinds or garage doors) in Home Assistant. Device refs selected here will not create a Switch or Light entity in Home Assistant but instead a garage door or blind.
+
+## Quirks
+
+Certain devices in HomeSeer should be represented as an entity other than their HomeSeer features would suggest. Quirks exist in this integration to allow "forcing" a certain type of device to be a certain Home Assistant entity. Currently, there are quirks for the following types of devices:
+- Z-Wave Barrier Operator as "cover" (i.e. a garage door)
+- Z-Wave Central Scene as Home Assistant events (see below)
+- Z-Wave Sensor Binary as "binary sensor"
+
+Further quirks can be requested by opening an issue in this repository with information about the device (and ideally, debug logs from libhomeseer or the integration itself which will contain the information necessary to create the quirk).
+
+## Home Assistant events
+
+Certain HomeSeer devices should be represented as a Home Assistant event - no entity will be created for these devices. Instead, when one of these devices are updated in HomeSeer, this integration will fire an event on the Home Assistant event bus which can be used to trigger a Home Assistant Automation.
+
+The event will contain the following parameters:
 
 `event_type`: homeseer_event  
 `event_data`:
 - `id`: Device Ref of the Central Scene device in HomeSeer.
-- `event`: Numeric value of the Central Scene device in HomeSeer for a given event.
+- `event`: Numeric value of the device in HomeSeer for a given event.
 
-## Install
+Currently, the following types of HomeSeer devices will fire events in Home Assistant:
+- Z-Wave Central Scene
 
-0. Enable the ASCII connection in HomeSeer (required to receive device updates in Home Assistant).
-1. Create the directory `custom_components` inside your Home Assistant config directory.
-2. `cd` into the `custom_components` directory and do `git clone https://github.com/marthoc/homeseer`.
-3. Add the below config to your configuration.yaml and restart Home Assistant.
-4. Problems with certain devices (i.e. not supported yet) will be reported in the debug logs for the component/pyHS3.
-
-## Upgrade
-
-0. Stop Home Assistant
-1. `cd` into the `custom_components/homeseer` directory and do `git pull`.
-2. Start Home Assistant
-
-## configuration.yaml example
-
-```yaml
-homeseer:
-  host:  192.168.1.10
-  namespace: homeseer
-  http_port: 80
-  ascii_port: 11000
-  username: default
-  password: default
-  name_template: '{{ device.name }}'
-  allow_events: True
-  forced_covers: [ 10, 20, 30 ]
-  allowed_event_groups: [ "Light Events", "Lock Events" ]
-```
-|Parameter|Description|Required/Optional|
-|---------|-----------|-----------------|
-|host|IP address of the HomeSeer HS3 HomeTroller|Required|
-|namespace|Unique string identifying the HomeSeer instance|Required|
-|http_port|HTTP port of the HomeTroller|Optional, default 80|
-|ascii_port|ASCII port of the HomeTroller|Optional, default 11000|
-|username|Username of the user to connect to the HomeTroller|Optional, default "default"|
-|password|Password of the user to connect to the HomeTroller|Optional, default "default"|
-|name_template|Jinja2 template for naming devices|Optional, default "{{ device.location2 }} {{ device.location }} {{ device.name }}"|
-|allow_events|Create Home Assistant scenes for HomeSeer events|Optional, default True|
-|forced_covers|List of refs of Z-Wave Switch Multilevels that should be represented in HA as covers|Optional, default all ZWSM to lights|
-|allowed_event_groups|List of names of HomeSeer event groups to import; all other groups will be ignored|Optional, default all groups imported|
-
-### Namespace
-
-In order to generate unique ids for entities to enable support for the entity registry (most importantly, allowing users to rename entities and change entity ids from the UI), a unique string is required. Namespace can be any string you like. If this string changes, all entities will generate new entries in the entity registry, so only change this string if you absolutely know what you are doing.
-
-### Name Template
-
-The HomeSeer integration will generate default entity names and ids in HomeAssistant when devices are added for the first time.
-By default, the generated name is of the form "location2 location name". You can customize the name generation by 
-specifying your own Jinja2 template in "name_template". This template will only have an effect on newly added devices and
-won't change the names of existing entities.
-
-Example:
-- HomeSeer location2 "Main Floor"
-- HomeSeer location "Living Room"
-- HomeSeer device name "Lamp"
-
-Result:
-- name_template = "{{ device.name }}": Home Assistant entity will be called "Lamp"
-- name_template = "{{ device.location }} - {{ device.name }}": Home Assistant entity will be called "Living Room - Lamp"
-- name_template = "HomeSeer - {{ device.name }}": Home Assistant entity will be called "HomeSeer - Lamp"
+Support for other "stateless" devices (i.e. remotes) such as these can be added in future updates. Please request support by opening an issue in this repository.
 
 ## Services
 
@@ -106,4 +101,22 @@ Allows the user to set any value on a HomeSeer device.
 |ref|Ref corresponding to the HomeSeer device |Integer|True|
 |value|Value to set the device to (integer) |Integer|True|
 
+## Support
 
+Please open an issue on this repository for any feature requests or bug reports. Some issues may be moved to the upstream repo marthoc/libhomeseer if the request or bug relates to the underlying python library.
+
+Debug logs are essential when requesting new features or for tracking down bugs. You can enable debug logging for the integration by adding the following to your configuration.yaml:
+
+```yaml
+logger:
+  default: critical
+  custom_components.homeseer: debug
+  libhomeseer: debug
+```
+The above entry will essentially silence the logs except for debug output from this integration and the underlying library.
+
+The only sensitive or personally identifying information contained in the debug logs will be your HomeSeer username, if you have supplied a value other than "default" (no passwords or external IPs are included in the debug logs).
+
+## Caveats
+
+The HomeSeer JSON API exposes only limited information about the devices present in HomeSeer. Requests for certain features may be declined due to the required data not being present in the API response.
