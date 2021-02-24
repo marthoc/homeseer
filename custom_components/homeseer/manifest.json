@@ -1,0 +1,10 @@
+{
+    "domain": "homeseer",
+    "name": "HomeSeer",
+    "config_flow": true,
+    "documentation": "https://github.com/marthoc/homeseer",
+    "issue_tracker": "https://github.com/marthoc/homeseer/issues",
+    "codeowners": ["@marthoc"],
+    "requirements": ["libhomeseer==1.2.2"],
+    "version": "1.0.0"
+}

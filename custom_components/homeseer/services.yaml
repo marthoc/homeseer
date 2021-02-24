@@ -6,5 +6,5 @@ control_device_by_value:
       description: Device ref of the HomeSeer device to control (integer).
       example: 145
     value:
-      description: Value to set the HomeSeer device to.
-      example: 255 or "255" or 255.0
+      description: New value for the HomeSeer device ref (integer).
+      example: 255

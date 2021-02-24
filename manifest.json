@@ -1,8 +1,0 @@
-{
-  "domain": "homeseer",
-  "name": "HomeSeer",
-  "documentation": "https://github.com/marthoc/homeseer",
-  "dependencies": [],
-  "codeowners": ["@marthoc"],
-  "requirements": ["pyhs3==0.14"]
-}
