@@ -34,7 +34,7 @@ from homeassistant.const import (
     DEVICE_CLASS_POWER,
     DEVICE_CLASS_TEMPERATURE,
     DEVICE_CLASS_VOLTAGE,
-    ELECTRICAL_CURRENT_AMPERE,
+    ELECTRIC_CURRENT_AMPERE,
     ENERGY_KILO_WATT_HOUR,
     LIGHT_LUX,
     TEMP_CELSIUS,
@@ -42,7 +42,7 @@ from homeassistant.const import (
     PERCENTAGE,
     POWER_KILO_WATT,
     POWER_WATT,
-    VOLT,
+    ELECTRIC_POTENTIAL_VOLT,
 )
 
 from .const import DOMAIN
@@ -101,13 +101,13 @@ class HomeSeerValueSensor(HomeSeerEntity):
         elif unit == HS_UNIT_PERCENTAGE:
             return PERCENTAGE
         elif unit == HS_UNIT_A or unit == HS_UNIT_AMPERES:
-            return ELECTRICAL_CURRENT_AMPERE
+            return ELECTRIC_CURRENT_AMPERE
         elif unit == HS_UNIT_KW:
             return POWER_KILO_WATT
         elif unit == HS_UNIT_KWH:
             return ENERGY_KILO_WATT_HOUR
         elif unit == HS_UNIT_V or unit == HS_UNIT_VOLTS:
-            return VOLT
+            return ELECTRIC_POTENTIAL_VOLT
         elif unit == HS_UNIT_W or unit == HS_UNIT_WATTS:
             return POWER_WATT
         return None
