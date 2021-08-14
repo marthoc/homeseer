@@ -155,14 +155,6 @@ class HomeSeerBridge:
         This method ensures that a HomeSeer device will only ever be represented in one platform,
         and filters out devices as required.
         """
-        # Filter out HomeSeer "Root" devices; they will be used for device info at the entity level only.
-        if device.relationship == RELATIONSHIP_ROOT:
-            _LOGGER.debug(
-                f"Device ref {device.ref} is a root device, "
-                f"not creating an entity for this device"
-            )
-            return None
-
         # Filter out devices from interfaces not selected during the Config Flow.
         iname = (
             device.interface_name
