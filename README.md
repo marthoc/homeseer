@@ -110,8 +110,9 @@ Debug logs are essential when requesting new features or for tracking down bugs.
 ```yaml
 logger:
   default: critical
-  custom_components.homeseer: debug
-  libhomeseer: debug
+  logs:
+    custom_components.homeseer: debug
+    libhomeseer: debug
 ```
 The above entry will essentially silence the logs except for debug output from this integration and the underlying library.
 
