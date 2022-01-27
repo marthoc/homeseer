@@ -2,7 +2,7 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs) [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WBGSD2WU6944G)
 
-[Home Assistant](https://home-assistant.io/) custom integration supporting [HomeSeer](www.homeseer.com) Smart Home Software (HS3 and HS4).
+[Home Assistant](https://home-assistant.io/) custom integration supporting [HomeSeer](https://homeseer.com/) Smart Home Software (HS3 and HS4).
 
 This integration will create Home Assistant entities for the following types of devices in HomeSeer by default:
 
