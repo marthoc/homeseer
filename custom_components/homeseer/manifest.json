@@ -2,9 +2,9 @@
     "domain": "homeseer",
     "name": "HomeSeer",
     "config_flow": true,
-    "documentation": "https://github.com/marthoc/homeseer",
-    "issue_tracker": "https://github.com/marthoc/homeseer/issues",
-    "codeowners": ["@marthoc"],
+    "documentation": "https://github.com/Airey001/homeseer",
+    "issue_tracker": "https://github.com/Airey001/homeseer/issues",
+    "codeowners": ["@Airey001"],
     "requirements": ["libhomeseer==1.2.2"],
     "version": "1.1.2"
 }
