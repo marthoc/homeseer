@@ -2,7 +2,7 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs) 
 
-[Home Assistant](https://home-assistant.io/) custom integration supporting [HomeSeer](www.homeseer.com) Smart Home Software (HS3 and HS4).
+[Home Assistant](https://home-assistant.io/) custom integration supporting [HomeSeer](www.homeseer.com) Smart Home Software (HS3 and HS4).  Modified by Airey001 due to changes in the Insteon Plugin and how it handles on / off values.
 
 This integration will create Home Assistant entities for the following types of devices in HomeSeer by default:
 
