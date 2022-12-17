@@ -1,6 +1,6 @@
-# HomeSeer Custom Integration for Home Assistant
+# HomeSeer Custom Integration for Home Assistant Forked from https://github.com/marthoc/homeseer
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs) [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WBGSD2WU6944G)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs) 
 
 [Home Assistant](https://home-assistant.io/) custom integration supporting [HomeSeer](www.homeseer.com) Smart Home Software (HS3 and HS4).
 
@@ -23,7 +23,7 @@ _The recommended installation method is via [HACS](https://hacs.xyz)._
 
 ### HACS
 
-1. Add https://github.com/marthoc/homeseer as a custom repository in HACS.
+1. Add https://github.com/Airey001/homeseer as a custom repository in HACS.
 2. Search for "HomeSeer" under "Integrations" in HACS.
 3. Click "Install".
 4. Proceed with Configuration (see below).
