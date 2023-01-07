@@ -4,7 +4,7 @@
         "step": {
             "user": {
                 "title": "HomeSeer",
-                "description": "See https://github.com/marthoc/homeseer for more information on configuring this integration.",
+                "description": "See https://github.com/Airey001/homeseer for more information on configuring this integration.",
                 "data": {
                     "host": "IP Address",
                     "username": "Username",

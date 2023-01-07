@@ -32,7 +32,7 @@ class HomeSeerSwitch(HomeSeerEntity, SwitchEntity):
     @property
     def is_on(self):
         """Return true if device is on."""
-        return self._device.is_on
+        return self._device.value > 0 and self._device.value <= 100
 
     async def async_turn_on(self, **kwargs):
         await self._device.on()
